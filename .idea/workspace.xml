@@ -4,11 +4,55 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1cb3952d-74db-402b-9d36-d6a4c758a23c" name="Changes" comment="" />
+    <list default="true" id="349b3a7d-74ce-46ac-a527-8ca875053abf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/MurderAtTheHotelApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/exceptions/PlayerDoesNotExistException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/exceptions/PlayerIsNotInRoomException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/exceptions/RoomDoesNotExistException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/HelpHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/InternalHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/InternalHandlerSwitcher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/MenuCommand.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/MessageHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/RegistrationHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/handlers/StartHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/models/ChatState.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/models/Player.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/repositories/ChatStateRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/repositories/PlayerRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/room/Room.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/room/RoomFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/room/RoomType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/room/RoomsObserver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/services/ChatStateService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/services/PlayerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/services/RoomService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jpa-buddy.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jpa-buddy.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kradin/telegram_bot/configs/BotConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/configs/TelegramBotConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kradin/telegram_bot/configs/BotInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/configs/TelegramBotInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kradin/telegram_bot/services/TelegramBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kradin/game/services/TelegramBot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -16,23 +60,54 @@
   <component name="GitToolBoxStore">
     <option name="projectConfigVersion" value="5" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
-  <component name="ProjectId" id="2bsHk7RHqGLGwmgplEZUahA4HnG" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="JpbToolWindowState">
+    <option name="isToolWindowVisible" value="false" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2bwLesqaxiadSoTubxtOgdlV8oG" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Application.MurderAtTheHotelApplication.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true"
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="MurderAtTheHotelApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ru.kradin.MurderAtTheHotelApplication" />
+      <module name="MurderAtTheHotel" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.kradin.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.MurderAtTheHotelApplication" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -43,12 +118,15 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="1cb3952d-74db-402b-9d36-d6a4c758a23c" name="Changes" comment="" />
-      <created>1706997005633</created>
+      <changelist id="349b3a7d-74ce-46ac-a527-8ca875053abf" name="Changes" comment="" />
+      <created>1707121293856</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1706997005633</updated>
+      <updated>1707121293856</updated>
     </task>
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

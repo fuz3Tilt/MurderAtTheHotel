@@ -1,10 +1,10 @@
-package ru.kradin.telegram_bot;
+package ru.kradin.game.configs;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BotConfig {
+public class TelegramBotConfig {
     @Value("${telegramBot.username}")
     private String username;
     @Value("${telegramBot.token}")
