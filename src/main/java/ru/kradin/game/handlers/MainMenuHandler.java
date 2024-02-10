@@ -11,7 +11,7 @@ import ru.kradin.game.services.TelegramBot;
 
 @Component
 public class MainMenuHandler implements InternalHandler{
-    private static final String NAME = "Главное меню \uD83D\uDCF1";
+    private static final String HANDLER_NAME = "Главное меню \uD83D\uDCF1";
     private TelegramBot telegramBot;
     @Autowired
     ChatStateService chatStateService;
@@ -24,7 +24,7 @@ public class MainMenuHandler implements InternalHandler{
         else
             chatId = update.getCallbackQuery().getMessage().getChatId();
 
-        String text = NAME;
+        String text = HANDLER_NAME;
         SendMessage sendMessage = new SendMessage(String.valueOf(chatId),text);
         MainMenuKeyboard.setKeyboard(sendMessage);
         telegramBot.sendMessage(sendMessage);
@@ -37,10 +37,10 @@ public class MainMenuHandler implements InternalHandler{
 
     @Override
     public String getHandlerName() {
-        return NAME;
+        return HANDLER_NAME;
     }
 
     public static String getStateForEntering() {
-        return NAME+";"+SpecialLocalState.NONE;
+        return HANDLER_NAME+";"+SpecialLocalState.NONE;
     }
 }

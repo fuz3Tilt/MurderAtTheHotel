@@ -40,7 +40,7 @@ public class RegistrationHandler implements InternalHandler {
                 setNickname(update);
                 break;
             default:
-                register(update, data);
+                register(update);
                 break;
         }
     }
@@ -96,19 +96,20 @@ public class RegistrationHandler implements InternalHandler {
         }
     }
 
-    private void register(Update update, String nickname) {
+    private void register(Update update) {
         if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             int messageId = getMessageId(update.getCallbackQuery().getMessage());
-            String callbackData = update.getCallbackQuery().getData();
-            String callbackUsefulData = callbackData.split(";")[2];
-            if (callbackUsefulData.equals(YES)) {
+            String[] callbackData = update.getCallbackQuery().getData().split(";");
+            String nickname = callbackData[1];
+            String pressedButton = callbackData[2];
+            if (pressedButton.equals(YES)) {
                 playerService.register(chatId, nickname);
                 String text = "Вы успешно зарегистрировались!";
                 sandSimpleEditMessage(chatId,messageId,text);
                 String state = chatStateService.setState(chatId, MainMenuHandler.getStateForEntering());
                 internalHandlerSwitcher.switchHandler(update,state);
-            } else if (callbackUsefulData.equals(NO)) {
+            } else if (pressedButton.equals(NO)) {
                 String text = "Введите никнейм:";
                 sandSimpleEditMessage(chatId, messageId, text);
                 chatStateService.setState(chatId, HANDLER_NAME + ";" + SET_NICKNAME);
