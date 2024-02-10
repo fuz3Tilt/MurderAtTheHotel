@@ -67,6 +67,9 @@ public class RegistrationHandler implements InternalHandler {
     }
 
     private void setNickname(Update update) {
+        if (!update.hasMessage())
+            return;
+
         long chatId = update.getMessage().getChatId();
         String nickname = update.getMessage().getText();
         if (playerService.isNicknameUses(nickname)) {

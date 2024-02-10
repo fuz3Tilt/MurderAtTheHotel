@@ -36,9 +36,11 @@ public class InternalHandlerSwitcher {
             if (!state.equals(callbackState)) {
                 return;
             }
-        } else {
+        } else if (update.hasMessage()){
             chatId = update.getMessage().getChatId();
             state = chatStateService.getStateByChatId(chatId);
+        } else {
+            return;
         }
 
         performSwitch(update, state);
