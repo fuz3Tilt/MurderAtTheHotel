@@ -20,6 +20,7 @@ public class RegistrationHandler implements InternalHandler {
     private static final String HANDLER_NAME = "registration";
     private static final String ENTER_NICKNAME = "enter_nickname";
     private static final String SET_NICKNAME = "set_nickname";
+    private static final String REGISTER = "register";
     private static final String YES = "Да ✅";
     private static final String NO = "Нет ❌";
     private TelegramBot telegramBot;
@@ -39,7 +40,7 @@ public class RegistrationHandler implements InternalHandler {
             case SET_NICKNAME:
                 setNickname(update);
                 break;
-            default:
+            case REGISTER:
                 register(update);
                 break;
         }
@@ -78,10 +79,10 @@ public class RegistrationHandler implements InternalHandler {
 
             var yesButton = new InlineKeyboardButton();
             yesButton.setText(YES);
-            yesButton.setCallbackData(HANDLER_NAME+";"+nickname+";"+YES);
+            yesButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+nickname+";"+YES);
             var noButton = new InlineKeyboardButton();
             noButton.setText(NO);
-            noButton.setCallbackData(HANDLER_NAME+";"+nickname+";"+NO);
+            noButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+nickname+";"+NO);
 
             rowInLine.add(yesButton);
             rowInLine.add(noButton);
@@ -92,7 +93,7 @@ public class RegistrationHandler implements InternalHandler {
             sendMessage.setReplyMarkup(markupInLine);
 
             telegramBot.sendMessage(sendMessage);
-            chatStateService.setState(chatId,HANDLER_NAME+";"+nickname);
+            chatStateService.setState(chatId,HANDLER_NAME+";"+REGISTER);
         }
     }
 
@@ -101,8 +102,8 @@ public class RegistrationHandler implements InternalHandler {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             int messageId = getMessageId(update.getCallbackQuery().getMessage());
             String[] callbackData = update.getCallbackQuery().getData().split(";");
-            String nickname = callbackData[1];
-            String pressedButton = callbackData[2];
+            String nickname = callbackData[2];
+            String pressedButton = callbackData[3];
             if (pressedButton.equals(YES)) {
                 playerService.register(chatId, nickname);
                 String text = "Вы успешно зарегистрировались!";
@@ -112,7 +113,7 @@ public class RegistrationHandler implements InternalHandler {
             } else if (pressedButton.equals(NO)) {
                 String text = "Введите никнейм:";
                 sandSimpleEditMessage(chatId, messageId, text);
-                chatStateService.setState(chatId, HANDLER_NAME + ";" + SET_NICKNAME);
+                chatStateService.setState(chatId, HANDLER_NAME+";"+SET_NICKNAME);
             }
         }
     }
