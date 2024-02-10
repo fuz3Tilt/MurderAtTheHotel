@@ -17,7 +17,7 @@ public class MainMenuHandler implements InternalHandler{
     ChatStateService chatStateService;
 
     @Override
-    public void handle(Update update, String data) {
+    public void handle(Update update, String state) {
         long chatId;
         if (update.hasMessage())
             chatId = update.getMessage().getChatId();
@@ -41,6 +41,6 @@ public class MainMenuHandler implements InternalHandler{
     }
 
     public static String getStateForEntering() {
-        return HANDLER_NAME+";"+SpecialLocalState.NONE;
+        return HANDLER_NAME+";"+SpecialLocalState.EMPTY;
     }
 }

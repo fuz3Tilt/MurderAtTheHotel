@@ -1,6 +1,7 @@
 package ru.kradin.game.room;
 
 import ru.kradin.game.models.Player;
+import ru.kradin.game.utils.IdGenerator;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -57,17 +58,10 @@ public class Room {
     }
 
     private void setId() {
-        String preId = generateId();
+        String preId = IdGenerator.generate();
         while(roomsObserver.isRoomIdInUse(preId)) {
-            preId = generateId();
+            preId = IdGenerator.generate();
         }
         id = preId;
-    }
-
-    private String generateId() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] idBytes = new byte[32];
-        secureRandom.nextBytes(idBytes);
-        return Base64.getEncoder().withoutPadding().encodeToString(idBytes);
     }
 }

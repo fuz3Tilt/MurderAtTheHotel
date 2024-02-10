@@ -31,7 +31,7 @@ public class InternalHandlerSwitcher {
             state = chatStateService.getStateByChatId(chatId);
 
             String[] callbackData = update.getCallbackQuery().getData().split(";");
-            String callbackState = callbackData[0]+";"+callbackData[1];
+            String callbackState = callbackData[0]+";"+callbackData[1]+";"+callbackData[2];
 
             if (!state.equals(callbackState)) {
                 return;
@@ -48,10 +48,8 @@ public class InternalHandlerSwitcher {
     }
 
     private void performSwitch(Update update, String state) {
-            String[] handlerName_localState = state.split(";");
-            String handlerName = handlerName_localState[0];
-            String localState = handlerName_localState[1];
-            InternalHandler internalHandler = nameHandlerMap.get(handlerName);
-            internalHandler.handle(update, localState);
+            String[] data = state.split(";");
+            String handlerName = data[0];
+            nameHandlerMap.get(handlerName).handle(update, state);
     }
 }

@@ -2,8 +2,6 @@ package ru.kradin.game.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.kradin.game.enums.SpecialLocalState;
-import ru.kradin.game.handlers.MainMenuHandler;
 import ru.kradin.game.handlers.RegistrationHandler;
 import ru.kradin.game.models.ChatState;
 import ru.kradin.game.repositories.ChatStateRepository;

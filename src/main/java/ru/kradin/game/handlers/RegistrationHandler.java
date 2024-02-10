@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.kradin.game.services.ChatStateService;
 import ru.kradin.game.services.PlayerService;
 import ru.kradin.game.services.TelegramBot;
+import ru.kradin.game.utils.IdGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,10 @@ public class RegistrationHandler implements InternalHandler {
     private ChatStateService chatStateService;
 
     @Override
-    public void handle(Update update, String data) {
-        switch (data) {
+    public void handle(Update update, String state) {
+        String[] data = state.split(";");
+        String methodName = data[1];
+        switch (methodName) {
             case ENTER_NICKNAME:
                 enterNickname(update);
                 break;
@@ -41,7 +44,7 @@ public class RegistrationHandler implements InternalHandler {
                 setNickname(update);
                 break;
             case REGISTER:
-                register(update);
+                register(update, state);
                 break;
         }
     }
@@ -70,6 +73,8 @@ public class RegistrationHandler implements InternalHandler {
             String text = "Никнейм занят, попробуйте ещё раз:";
             sandSimpleMessage(chatId,text);
         } else {
+            String buttonsId = IdGenerator.generateForButton();
+
             String text = "Вы уверены, что хотите никнейм: "+nickname+"?";
             SendMessage sendMessage = new SendMessage(String.valueOf(chatId),text);
 
@@ -79,10 +84,10 @@ public class RegistrationHandler implements InternalHandler {
 
             var yesButton = new InlineKeyboardButton();
             yesButton.setText(YES);
-            yesButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+nickname+";"+YES);
+            yesButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+buttonsId+";"+nickname+";"+YES);
             var noButton = new InlineKeyboardButton();
             noButton.setText(NO);
-            noButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+nickname+";"+NO);
+            noButton.setCallbackData(HANDLER_NAME+";"+REGISTER+";"+buttonsId+";"+nickname+";"+NO);
 
             rowInLine.add(yesButton);
             rowInLine.add(noButton);
@@ -93,22 +98,29 @@ public class RegistrationHandler implements InternalHandler {
             sendMessage.setReplyMarkup(markupInLine);
 
             telegramBot.sendMessage(sendMessage);
-            chatStateService.setState(chatId,HANDLER_NAME+";"+REGISTER);
+            chatStateService.setState(chatId,HANDLER_NAME+";"+REGISTER+";"+buttonsId);
         }
     }
 
-    private void register(Update update) {
+    private void register(Update update, String state) {
         if (update.hasCallbackQuery()) {
+            String[] stateData = state.split(";");
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             int messageId = getMessageId(update.getCallbackQuery().getMessage());
             String[] callbackData = update.getCallbackQuery().getData().split(";");
-            String nickname = callbackData[2];
-            String pressedButton = callbackData[3];
+            String pressedButton = callbackData[4];
+            String nickname = callbackData[3];
+
+            String stateButtonId = stateData[2];
+            String callbackButtonId = callbackData[2];
+            if (!stateButtonId.equals(callbackButtonId))
+                return;
+
             if (pressedButton.equals(YES)) {
                 playerService.register(chatId, nickname);
-                String text = "Вы успешно зарегистрировались!";
+                String text = "Вы успешно зарегистрировались, ваш никнейм "+nickname+"!";
                 sandSimpleEditMessage(chatId,messageId,text);
-                String state = chatStateService.setState(chatId, MainMenuHandler.getStateForEntering());
+                state = chatStateService.setState(chatId, MainMenuHandler.getStateForEntering());
                 internalHandlerSwitcher.switchHandler(update,state);
             } else if (pressedButton.equals(NO)) {
                 String text = "Введите никнейм:";
