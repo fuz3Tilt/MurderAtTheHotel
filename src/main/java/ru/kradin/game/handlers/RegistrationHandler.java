@@ -55,10 +55,6 @@ public class RegistrationHandler implements InternalHandler {
         return HANDLER_NAME;
     }
 
-    public static String getStateForRegistration() {
-        return HANDLER_NAME+";"+ENTER_NICKNAME;
-    }
-
     private void enterNickname(Update update) {
         long chatId = update.getMessage().getChatId();
         String text = "Чтобы пройти регистрацию, введите никнейм:";
@@ -110,7 +106,8 @@ public class RegistrationHandler implements InternalHandler {
                 playerService.register(chatId, nickname);
                 String text = "Вы успешно зарегистрировались!";
                 sandSimpleEditMessage(chatId,messageId,text);
-                chatStateService.setState(chatId, "");
+                String state = chatStateService.setState(chatId, MainMenuHandler.getStateForEntering());
+                internalHandlerSwitcher.switchHandler(update,state);
             } else if (callbackUsefulData.equals(NO)) {
                 String text = "Введите никнейм:";
                 sandSimpleEditMessage(chatId, messageId, text);
@@ -141,5 +138,9 @@ public class RegistrationHandler implements InternalHandler {
         editMessageText.setMessageId(messageId);
         editMessageText.setText(text);
         telegramBot.editMessage(editMessageText);
+    }
+
+    public static String getStateForEntering() {
+        return HANDLER_NAME+";"+ENTER_NICKNAME;
     }
 }

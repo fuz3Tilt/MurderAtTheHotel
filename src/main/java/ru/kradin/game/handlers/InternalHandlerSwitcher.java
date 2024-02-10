@@ -41,23 +41,17 @@ public class InternalHandlerSwitcher {
             state = chatStateService.getStateByChatId(chatId);
         }
 
-        if (state.isEmpty())
-            return;
-
-        String[] handlerName_localState = state.split(";");
-        String handlerName = handlerName_localState[0];
-        String localState = handlerName_localState[1];
-        InternalHandler internalHandler = nameHandlerMap.get(handlerName);
-        internalHandler.handle(update,localState);
+        performSwitch(update, state);
     }
     public void switchHandler(Update update, String state) {
-        if (state.isEmpty())
-            return;
+        performSwitch(update, state);
+    }
 
-        String[] handlerName_localState = state.split(";");
-        String handlerName = handlerName_localState[0];
-        String localState = handlerName_localState[1];
-        InternalHandler internalHandler = nameHandlerMap.get(handlerName);
-        internalHandler.handle(update,localState);
+    private void performSwitch(Update update, String state) {
+            String[] handlerName_localState = state.split(";");
+            String handlerName = handlerName_localState[0];
+            String localState = handlerName_localState[1];
+            InternalHandler internalHandler = nameHandlerMap.get(handlerName);
+            internalHandler.handle(update, localState);
     }
 }

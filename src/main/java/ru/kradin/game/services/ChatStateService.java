@@ -2,6 +2,9 @@ package ru.kradin.game.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.kradin.game.enums.SpecialLocalState;
+import ru.kradin.game.handlers.MainMenuHandler;
+import ru.kradin.game.handlers.RegistrationHandler;
 import ru.kradin.game.models.ChatState;
 import ru.kradin.game.repositories.ChatStateRepository;
 
@@ -16,7 +19,7 @@ public class ChatStateService {
         Optional<ChatState> chatStateOptional = chatStateRepository.findById(chatId);
         String state;
         if (chatStateOptional.isEmpty()) {
-            ChatState chatState = new ChatState(chatId,"");
+            ChatState chatState = new ChatState(chatId, RegistrationHandler.getStateForEntering());
             chatStateRepository.save(chatState);
             state = chatState.getState();
         } else {
@@ -25,7 +28,7 @@ public class ChatStateService {
         return state;
     }
 
-    public void setState(long chatId, String state) {
+    public String setState(long chatId, String state) {
         Optional<ChatState> chatStateOptional = chatStateRepository.findById(chatId);
         ChatState chatState;
         if (chatStateOptional.isEmpty()) {
@@ -35,5 +38,6 @@ public class ChatStateService {
             chatState.setState(state);
         }
         chatStateRepository.save(chatState);
+        return chatState.getState();
     }
 }
