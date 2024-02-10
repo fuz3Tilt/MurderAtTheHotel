@@ -28,7 +28,7 @@ public class MainMenuKeyboard {
         row3.add("Присоединиться по id \uD83D\uDD10");
         keyboardRows.add(row3);
 
-        row4.add("Сменит никнейм ⚙\uFE0F");
+        row4.add("Сменить никнейм ⚙\uFE0F");
         keyboardRows.add(row4);
 
         keyboardMarkup.setKeyboard(keyboardRows);
