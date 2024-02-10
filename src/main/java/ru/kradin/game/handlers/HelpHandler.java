@@ -8,7 +8,7 @@ import ru.kradin.game.services.ChatStateService;
 import ru.kradin.game.services.TelegramBot;
 
 @Component
-public class HelpHandler implements MessageHandler, MenuCommand{
+public class HelpHandler implements MenuCommand{
     private static final String COMMAND = "/help";
     private static final String DESCRIPTION = "Помощь по игре";
     private TelegramBot telegramBot;

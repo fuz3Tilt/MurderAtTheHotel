@@ -10,7 +10,7 @@ import ru.kradin.game.services.PlayerService;
 import ru.kradin.game.services.TelegramBot;
 
 @Component
-public class StartHandler implements MessageHandler, MenuCommand {
+public class StartHandler implements MenuCommand {
     private static final String COMMAND = "/start";
     private static final String DESCRIPTION = "Запуск/перезапуск бота";
     private TelegramBot telegramBot;

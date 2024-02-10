@@ -14,7 +14,6 @@ import ru.kradin.game.configs.TelegramBotConfig;
 import ru.kradin.game.handlers.InternalHandlerSwitcher;
 import ru.kradin.game.handlers.InternalHandler;
 import ru.kradin.game.handlers.MenuCommand;
-import ru.kradin.game.handlers.MessageHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,12 +23,11 @@ import java.util.Map;
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
     private final String username;
-    private Map<String, MessageHandler> commandNameHandlerMap = new HashMap<>();
+    private Map<String, MenuCommand> commandNameHandlerMap = new HashMap<>();
     private InternalHandlerSwitcher internalHandlerSwitcher;
 
     public TelegramBot(TelegramBotConfig telegramBotConfig,
                        List<MenuCommand> menuCommands,
-                       List<MessageHandler> messageHandlers,
                        List<InternalHandler> internalHandlers,
                        InternalHandlerSwitcher internalHandlerSwitcher) {
         super(telegramBotConfig.getToken());
@@ -38,13 +36,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         internalHandlerSwitcher.init(internalHandlers,this);
         this.internalHandlerSwitcher = internalHandlerSwitcher;
 
-        messageHandlers.stream().forEach(messageHandler -> {
-            messageHandler.setTelegramBot(this);
-            commandNameHandlerMap.put(messageHandler.getCommand(),messageHandler);
-        });
-
         List<BotCommand> listOfCommands = new ArrayList<>();
-        menuCommands.stream().forEach(c -> listOfCommands.add(new BotCommand(c.getCommand(),c.getDescription())));
+        menuCommands.stream().forEach(menuCommand -> {
+            menuCommand.setTelegramBot(this);
+            commandNameHandlerMap.put(menuCommand.getCommand(), menuCommand);
+            listOfCommands.add(new BotCommand(menuCommand.getCommand(),menuCommand.getDescription()));
+        });
         try {
             this.execute(new DeleteMyCommands());
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
@@ -57,9 +54,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if(update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
-            MessageHandler messageHandler = commandNameHandlerMap.get(messageText);
-            if (messageHandler!=null) {
-                messageHandler.handle(update);
+            MenuCommand menuCommand = commandNameHandlerMap.get(messageText);
+            if (menuCommand!=null) {
+                menuCommand.handle(update);
             } else {
                 internalHandlerSwitcher.switchHandler(update);
             }
