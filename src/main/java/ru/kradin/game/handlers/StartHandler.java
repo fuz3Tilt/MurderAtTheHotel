@@ -62,7 +62,7 @@ public class StartHandler implements MenuCommand {
         try {
             playerService.getByChatId(chatId);
         } catch (PlayerDoesNotExistException e) {
-            chatStateService.setState(chatId,RegistrationHandler.getStateForEntering());
+            chatStateService.setState(chatId,RegistrationHandler.getStateForStartingRegistration());
         }
     }
 }

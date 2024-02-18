@@ -5,19 +5,20 @@ import org.springframework.stereotype.Service;
 import ru.kradin.game.handlers.RegistrationHandler;
 import ru.kradin.game.models.ChatState;
 import ru.kradin.game.repositories.ChatStateRepository;
+import ru.kradin.game.utils.StateCreator;
 
 import java.util.Optional;
 
 @Service
 public class ChatStateService {
     @Autowired
-    ChatStateRepository chatStateRepository;
+    private ChatStateRepository chatStateRepository;
 
     public String getStateByChatId(long chatId) {
         Optional<ChatState> chatStateOptional = chatStateRepository.findById(chatId);
         String state;
         if (chatStateOptional.isEmpty()) {
-            ChatState chatState = new ChatState(chatId, RegistrationHandler.getStateForEntering());
+            ChatState chatState = new ChatState(chatId, RegistrationHandler.getStateForStartingRegistration());
             chatStateRepository.save(chatState);
             state = chatState.getState();
         } else {

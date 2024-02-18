@@ -3,6 +3,7 @@ package ru.kradin.game.keyboards;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.kradin.game.handlers.MainMenuHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,17 +19,17 @@ public class MainMenuKeyboard {
         KeyboardRow row3 = new KeyboardRow();
         KeyboardRow row4 = new KeyboardRow();
 
-        row1.add("Открытые комнаты \uD83C\uDFAE");
+        row1.add(MainMenuHandler.getPublicRooms());
         keyboardRows.add(row1);
 
-        row2.add("Создать открытую комнату \uD83D\uDD13");
-        row2.add("Создать закрытую комнату \uD83D\uDD12");
+        row2.add(MainMenuHandler.getCreatePublicRoom());
+        row2.add(MainMenuHandler.getCreatePrivateRoom());
         keyboardRows.add(row2);
 
-        row3.add("Присоединиться по id \uD83D\uDD10");
+        row3.add(MainMenuHandler.getJoinById());
         keyboardRows.add(row3);
 
-        row4.add("Сменить никнейм ⚙\uFE0F");
+        row4.add(MainMenuHandler.getChangeNickname());
         keyboardRows.add(row4);
 
         keyboardMarkup.setKeyboard(keyboardRows);

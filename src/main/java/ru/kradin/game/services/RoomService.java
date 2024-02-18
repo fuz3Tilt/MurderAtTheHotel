@@ -1,44 +1,31 @@
 package ru.kradin.game.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.kradin.game.exceptions.PlayerDoesNotExistException;
-import ru.kradin.game.exceptions.PlayerIsNotInRoomException;
 import ru.kradin.game.exceptions.RoomDoesNotExistException;
 import ru.kradin.game.models.Player;
 import ru.kradin.game.room.Room;
 import ru.kradin.game.room.RoomFactory;
-import ru.kradin.game.room.RoomType;
+import ru.kradin.game.enums.RoomType;
 import ru.kradin.game.room.RoomsObserver;
 
 import java.util.List;
 
 @Service
 public class RoomService {
-    @Autowired
     private RoomsObserver roomsObserver;
-    @Autowired
-    private RoomFactory roomFactory;
-    @Autowired
     private PlayerService playerService;
+    private RoomFactory roomFactory;
 
-    public Room createPublicRoomByChatId(long chatId) throws PlayerDoesNotExistException {
-        Player player = playerService.getByChatId(chatId);
-        return roomFactory.createRoom(player, RoomType.PUBLIC);
+    public RoomService(RoomsObserver roomsObserver, PlayerService playerService) {
+        this.roomsObserver = roomsObserver;
+        this.playerService = playerService;
+        this.roomFactory = new RoomFactory(roomsObserver);
     }
 
-    public Room createPrivateRoomByChatId(long chatId) throws PlayerDoesNotExistException {
+    public Room createRoomByChatIdAndRoomType(long chatId, RoomType roomType) throws PlayerDoesNotExistException {
         Player player = playerService.getByChatId(chatId);
-        return roomFactory.createRoom(player, RoomType.PRIVATE);
-    }
-
-    public Room getRoomByChatId(long chatId) throws PlayerIsNotInRoomException {
-        String roomId = roomsObserver.getChatIdRoomIdMap().get(chatId);
-
-        if (roomId==null)
-            throw new PlayerIsNotInRoomException();
-
-        return roomsObserver.getRoomIdRoomMap().get(roomId);
+        return roomFactory.createRoom(player, roomType);
     }
 
     public List<Room> getPublicRooms() {
@@ -50,6 +37,18 @@ public class RoomService {
 
         if (room==null)
             throw new RoomDoesNotExistException();
+
+        return room;
+    }
+
+    public Room joinRoomByRoomIdAndPlayerChatId(String roomId, long chatId) throws RoomDoesNotExistException, PlayerDoesNotExistException {
+        Player player = playerService.getByChatId(chatId);
+        Room room = roomsObserver.getRoomIdRoomMap().get(roomId);
+
+        if (room==null)
+            throw new RoomDoesNotExistException();
+
+        room.addPlayer(player);
 
         return room;
     }

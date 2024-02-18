@@ -71,6 +71,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public void sendMessage(SendMessage sendMessage) {
+        sendMessage.setParseMode("HTML");
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -79,6 +80,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public void editMessage(EditMessageText editMessageText) {
+        editMessageText.setParseMode("HTML");
         try {
             execute(editMessageText);
         } catch (TelegramApiException e) {

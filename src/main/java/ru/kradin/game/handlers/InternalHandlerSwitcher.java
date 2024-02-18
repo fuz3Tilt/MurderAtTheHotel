@@ -14,7 +14,7 @@ import java.util.Map;
 public class InternalHandlerSwitcher {
     private Map<String,InternalHandler> nameHandlerMap = new HashMap<>();
     @Autowired
-    ChatStateService chatStateService;
+    private ChatStateService chatStateService;
 
     public void init(List<InternalHandler> internalHandlers, TelegramBot telegramBot) {
         internalHandlers.stream().forEach(internalHandler -> {
@@ -29,11 +29,13 @@ public class InternalHandlerSwitcher {
         if (update.hasCallbackQuery()) {
             chatId = update.getCallbackQuery().getMessage().getChatId();
             state = chatStateService.getStateByChatId(chatId);
+            String[] stateData = state.split(";");
+            String usefulStateData = stateData[0]+";"+stateData[1]+";"+stateData[2];
 
             String[] callbackData = update.getCallbackQuery().getData().split(";");
-            String callbackState = callbackData[0]+";"+callbackData[1]+";"+callbackData[2];
+            String usefulCallbackData = callbackData[0]+";"+callbackData[1]+";"+callbackData[2];
 
-            if (!state.equals(callbackState)) {
+            if (!usefulStateData.equals(usefulCallbackData)) {
                 return;
             }
         } else if (update.hasMessage()){

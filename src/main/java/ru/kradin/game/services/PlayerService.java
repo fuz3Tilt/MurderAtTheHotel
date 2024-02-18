@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 public class PlayerService {
     @Autowired
-    PlayerRepository playerRepository;
+    private PlayerRepository playerRepository;
 
     public Player getByChatId(long chatId) throws PlayerDoesNotExistException {
         Optional<Player> playerOptional = playerRepository.findById(chatId);
