@@ -23,6 +23,7 @@ public class MainMenuHandler implements InternalHandler{
     private static final String CREATE_PRIVATE_ROOM = "Создать закрытую комнату \uD83D\uDD12";
     private static final String JOIN_BY_ID = "Присоединиться по ID \uD83D\uDD10";
     private static final String CHANGE_NICKNAME = "Изменить никнейм ⚙\uFE0F";
+    private static final String DO_NOT_SEND_MAIN_MENU_AGAIN = "DNSMMA";
     private TelegramBot telegramBot;
     @Autowired
     private InternalHandlerSwitcher internalHandlerSwitcher;
@@ -57,7 +58,12 @@ public class MainMenuHandler implements InternalHandler{
 //                    internalHandlerSwitcher.switchHandler(update, state);
                     break;
                 default:
+                    String[] stateData = state.split(";");
+                    if (stateData[1].equals(DO_NOT_SEND_MAIN_MENU_AGAIN))
+                        return;
+
                     sendMainMenuKeyboard(chatId);
+                    chatStateService.setState(chatId, StateCreator.create(HANDLER_NAME,DO_NOT_SEND_MAIN_MENU_AGAIN));
                     break;
             }
         } else if (update.hasCallbackQuery()){
