@@ -14,6 +14,7 @@ import ru.kradin.game.services.PlayerService;
 import ru.kradin.game.services.TelegramBot;
 import ru.kradin.game.utils.IdGenerator;
 import ru.kradin.game.utils.MessageIdUtil;
+import ru.kradin.game.utils.NicknameValidator;
 import ru.kradin.game.utils.StateCreator;
 
 import java.util.ArrayList;
@@ -122,6 +123,13 @@ public class ChangeNicknameHandler implements InternalHandler{
     }
 
     private void sendConfirmMessageAndChangeState(long chatId, String nickname) {
+        nickname = NicknameValidator.eliminateUnnecessarySpaces(nickname);
+        if (!NicknameValidator.isValid(nickname)) {
+            SendMessage message = new SendMessage(String.valueOf(chatId), NicknameValidator.getValidationRules()+"\nПопробуйте ещё раз:");
+            telegramBot.sendMessage(message);
+            return;
+        }
+
         if (playerService.isNicknameUses(nickname)) {
             SendMessage message = new SendMessage(String.valueOf(chatId), "Никнейм занят, попробуйте ещё раз:");
             telegramBot.sendMessage(message);
