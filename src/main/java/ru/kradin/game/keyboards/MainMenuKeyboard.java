@@ -33,6 +33,9 @@ public class MainMenuKeyboard {
         keyboardRows.add(row4);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
         sendMessage.setReplyMarkup(keyboardMarkup);
     }

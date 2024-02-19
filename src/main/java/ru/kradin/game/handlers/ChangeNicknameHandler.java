@@ -112,6 +112,9 @@ public class ChangeNicknameHandler implements InternalHandler{
         keyboardRows.add(row1);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
         sendMessage.setReplyMarkup(keyboardMarkup);
     }

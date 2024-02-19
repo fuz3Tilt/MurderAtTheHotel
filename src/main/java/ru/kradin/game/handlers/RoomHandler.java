@@ -371,6 +371,9 @@ public class RoomHandler implements InternalHandler {
         keyboardRows.add(row2);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
         sendMessage.setReplyMarkup(keyboardMarkup);
     }
@@ -386,6 +389,9 @@ public class RoomHandler implements InternalHandler {
         keyboardRows.add(row1);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
         sendMessage.setReplyMarkup(keyboardMarkup);
     }
@@ -405,6 +411,9 @@ public class RoomHandler implements InternalHandler {
         keyboardRows.add(row2);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
         sendMessage.setReplyMarkup(keyboardMarkup);
     }
