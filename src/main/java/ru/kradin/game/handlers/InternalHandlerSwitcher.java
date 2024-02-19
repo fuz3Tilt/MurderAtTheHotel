@@ -30,9 +30,12 @@ public class InternalHandlerSwitcher {
             chatId = update.getCallbackQuery().getMessage().getChatId();
             state = chatStateService.getStateByChatId(chatId);
             String[] stateData = state.split(";");
-            String usefulStateData = stateData[0]+";"+stateData[1]+";"+stateData[2];
-
             String[] callbackData = update.getCallbackQuery().getData().split(";");
+
+            if (stateData.length<3 || callbackData.length<3)
+                return;
+
+            String usefulStateData = stateData[0]+";"+stateData[1]+";"+stateData[2];
             String usefulCallbackData = callbackData[0]+";"+callbackData[1]+";"+callbackData[2];
 
             if (!usefulStateData.equals(usefulCallbackData)) {
