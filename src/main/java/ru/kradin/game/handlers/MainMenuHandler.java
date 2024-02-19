@@ -54,8 +54,8 @@ public class MainMenuHandler implements InternalHandler{
                     internalHandlerSwitcher.switchHandler(update, state);
                     break;
                 case CHANGE_NICKNAME:
-//                    state = chatStateService.setState();
-//                    internalHandlerSwitcher.switchHandler(update, state);
+                    state = chatStateService.setState(chatId,ChangeNicknameHandler.getStateForChangingNickname());
+                    internalHandlerSwitcher.switchHandler(update, state);
                     break;
                 default:
                     String[] stateData = state.split(";");

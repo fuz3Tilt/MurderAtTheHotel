@@ -27,6 +27,12 @@ public class PlayerService {
         return playerOptional.isPresent();
     }
 
+    public void changeNickname(long chatId, String nickname) {
+        Player player = playerRepository.findById(chatId).get();
+        player.setNickname(nickname);
+        playerRepository.save(player);
+    }
+
     public void register(long chatId, String nickname) {
         Player player = new Player(chatId, nickname);
         playerRepository.save(player);
