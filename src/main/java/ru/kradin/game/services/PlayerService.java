@@ -23,7 +23,7 @@ public class PlayerService {
     }
 
     public boolean isNicknameUses(String nickname) {
-        Optional<Player> playerOptional = playerRepository.findByNickname(nickname);
+        Optional<Player> playerOptional = playerRepository.findByNicknameIgnoreCase(nickname);
         return playerOptional.isPresent();
     }
 
