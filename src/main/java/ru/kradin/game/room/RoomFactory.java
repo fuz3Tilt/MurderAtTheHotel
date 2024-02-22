@@ -1,6 +1,5 @@
 package ru.kradin.game.room;
 
-import ru.kradin.game.enums.RoomType;
 import ru.kradin.game.models.Player;
 
 public class RoomFactory {
@@ -10,7 +9,7 @@ public class RoomFactory {
         this.roomsObserver = roomsObserver;
     }
 
-    public Room createRoom(Player owner, RoomType roomType) {
-        return new Room(roomsObserver, owner, roomType);
+    public Room createRoom(Player owner, RoomSettings roomSettings) {
+        return new Room(roomsObserver, owner, roomSettings);
     }
 }

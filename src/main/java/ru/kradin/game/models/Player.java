@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 @Entity
 public class Player {
@@ -46,5 +47,18 @@ public class Player {
         ZoneId timeZone = ZoneId.of("Europe/Moscow");
         ZonedDateTime zonedDateTime = utcTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZone);
         return zonedDateTime.toLocalDateTime();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Player)) return false;
+        Player player = (Player) o;
+        return getChatId() == player.getChatId() && Objects.equals(getNickname(), player.getNickname()) && Objects.equals(getRegisteredAt(), player.getRegisteredAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getChatId(), getNickname(), getRegisteredAt());
     }
 }

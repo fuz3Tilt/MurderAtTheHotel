@@ -6,7 +6,7 @@ import ru.kradin.game.exceptions.RoomDoesNotExistException;
 import ru.kradin.game.models.Player;
 import ru.kradin.game.room.Room;
 import ru.kradin.game.room.RoomFactory;
-import ru.kradin.game.enums.RoomType;
+import ru.kradin.game.room.RoomSettings;
 import ru.kradin.game.room.RoomsObserver;
 
 import java.util.List;
@@ -23,9 +23,9 @@ public class RoomService {
         this.roomFactory = new RoomFactory(roomsObserver);
     }
 
-    public Room createRoomByChatIdAndRoomType(long chatId, RoomType roomType) throws PlayerDoesNotExistException {
+    public Room createRoomByChatIdAndRoomSettings(long chatId, RoomSettings roomSettings) throws PlayerDoesNotExistException {
         Player player = playerService.getByChatId(chatId);
-        return roomFactory.createRoom(player, roomType);
+        return roomFactory.createRoom(player, roomSettings);
     }
 
     public List<Room> getPublicRooms() {

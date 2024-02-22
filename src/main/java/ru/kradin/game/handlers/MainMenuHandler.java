@@ -4,23 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.kradin.game.enums.SpecialLocalState;
 import ru.kradin.game.keyboards.MainMenuKeyboard;
 import ru.kradin.game.services.ChatStateService;
 import ru.kradin.game.services.TelegramBot;
 import ru.kradin.game.utils.StateCreator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class MainMenuHandler implements InternalHandler{
     private static final String HANDLER_NAME = "Главное меню \uD83D\uDCF1";
     private static final String PUBLIC_ROOMS = "Открытые комнаты \uD83C\uDFAE";
-    private static final String CREATE_PUBLIC_ROOM = "Создать открытую комнату \uD83D\uDD13";
-    private static final String CREATE_PRIVATE_ROOM = "Создать закрытую комнату \uD83D\uDD12";
+    private static final String CREATE_ROOM = "Создать комнату \uD83D\uDD11";
     private static final String JOIN_BY_ID = "Присоединиться по ID \uD83D\uDD10";
     private static final String CHANGE_NICKNAME = "Изменить никнейм ⚙\uFE0F";
     private static final String DO_NOT_SEND_MAIN_MENU_AGAIN = "DNSMMA";
@@ -38,19 +32,15 @@ public class MainMenuHandler implements InternalHandler{
             chatId = update.getMessage().getChatId();
             switch (update.getMessage().getText()) {
                 case PUBLIC_ROOMS:
-                    state = chatStateService.setState(chatId,RoomHandler.getStateForGettingPublicRooms());
+                    state = chatStateService.setState(chatId,PublicRoomsHandler.getSateForGettingPublicRooms());
                     internalHandlerSwitcher.switchHandler(update, state);
                     break;
-                case CREATE_PUBLIC_ROOM:
-                    state = chatStateService.setState(chatId,RoomHandler.getStateForCreatingPublicRoom());
-                    internalHandlerSwitcher.switchHandler(update, state);
-                    break;
-                case CREATE_PRIVATE_ROOM:
-                    state = chatStateService.setState(chatId,RoomHandler.getStateForCreatingPrivateRoom());
+                case CREATE_ROOM:
+                    state = chatStateService.setState(chatId,RoomCreatorHandler.getStateForCreatingRoom());
                     internalHandlerSwitcher.switchHandler(update, state);
                     break;
                 case JOIN_BY_ID:
-                    state = chatStateService.setState(chatId,RoomHandler.getStateForJoiningRoomById());
+                    state = chatStateService.setState(chatId,JoinRoomByIdHandler.getStateFroJoiningById());
                     internalHandlerSwitcher.switchHandler(update, state);
                     break;
                 case CHANGE_NICKNAME:
@@ -97,12 +87,8 @@ public class MainMenuHandler implements InternalHandler{
         return PUBLIC_ROOMS;
     }
 
-    public static String getCreatePublicRoom() {
-        return CREATE_PUBLIC_ROOM;
-    }
-
-    public static String getCreatePrivateRoom() {
-        return CREATE_PRIVATE_ROOM;
+    public static String getCreateRoom() {
+        return CREATE_ROOM;
     }
 
     public static String getJoinById() {
