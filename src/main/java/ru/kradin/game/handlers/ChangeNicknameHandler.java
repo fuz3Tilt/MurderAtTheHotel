@@ -60,6 +60,7 @@ public class ChangeNicknameHandler implements InternalHandler{
                     sendConfirmMessageAndChangeState(chatId, nickname);
                     break;
             }
+            // обработка нажатых кнопок
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             String[] callbackData = update.getCallbackQuery().getData().split(";");

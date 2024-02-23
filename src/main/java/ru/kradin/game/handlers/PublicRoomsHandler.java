@@ -73,6 +73,7 @@ public class PublicRoomsHandler implements InternalHandler{
                     }
                     break;
             }
+            // обработка нажатых кнопок
         } else if (update.hasCallbackQuery()) {
             String[] callbackData = update.getCallbackQuery().getData().split(";");
             long chatId = update.getCallbackQuery().getMessage().getChatId();

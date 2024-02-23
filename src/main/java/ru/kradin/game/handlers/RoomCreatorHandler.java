@@ -64,7 +64,9 @@ public class RoomCreatorHandler implements InternalHandler{
                 telegramBot.sendMessage(settingsMessage);
                 chatStateService.setState(chatId, StateCreator.create(HANDLER_NAME,DO_NOT_SEND_SETTINGS_AGAIN_LOCAL_STATE,buttonsId));
             }
-        } else if (update.hasCallbackQuery()) {
+        }
+        // обработка нажатых кнопок
+        else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             int messageId = MessageIdUtil.getMessageId(update.getCallbackQuery().getMessage());
             String[] callbackData = update.getCallbackQuery().getData().split(";");
@@ -104,6 +106,13 @@ public class RoomCreatorHandler implements InternalHandler{
                 RoomSettings.VotingType.PUBLIC);
     }
 
+    /**
+     * Возвращает разметку с кнопками для настройки комнаты.
+     * Каждая кнопка хранит информацию о том, какими должны быть настройки после нажатия
+     * @param roomSettings
+     * @param buttonsId
+     * @return
+     */
     private InlineKeyboardMarkup getSettingsMarkup(RoomSettings roomSettings, String buttonsId) {
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
 
@@ -169,6 +178,13 @@ public class RoomCreatorHandler implements InternalHandler{
         return markupInLine;
     }
 
+    /**
+     * Генерирует в текстовую строку хранящую настройки комнаты
+     * @param accessType
+     * @param speedType
+     * @param votingType
+     * @return
+     */
     private String getLocalStateByRoomSettings(RoomSettings.AccessType accessType, RoomSettings.SpeedType speedType, RoomSettings.VotingType votingType) {
         String accessTypeStr;
         String speedTypeStr;
@@ -195,6 +211,11 @@ public class RoomCreatorHandler implements InternalHandler{
         return StateCreator.create(accessTypeStr,speedTypeStr,votingTypeStr);
     }
 
+    /**
+     * Преобразует строку с настройками комнаты в объект RoomSettings
+     * @param localState
+     * @return
+     */
     private RoomSettings getRoomSettingsByLocalState(String localState) {
         String[] stateData = localState.split(";");
         RoomSettings.AccessType accessType;

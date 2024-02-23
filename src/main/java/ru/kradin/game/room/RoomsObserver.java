@@ -6,6 +6,9 @@ import ru.kradin.game.enums.RoomNotifyType;
 import java.util.*;
 
 @Component
+/**
+ * Хранит и управляет списком всех комнат.
+ */
 public class RoomsObserver {
     private Map<String, Room> roomIdRoomMap = new HashMap<>();
     private List<Room> publicRooms = new ArrayList<>();

@@ -70,6 +70,7 @@ public class InRoomHandler implements InternalHandler{
                 switch (update.getMessage().getText()) {
                     case ABOUT_ROOM_KEY_TEXT:
                         SendMessage roomInfo = new SendMessage(String.valueOf(chatId), room.toString()+TEXT_FOR_ROOM_INFO);
+                        // если игрок, действие которого обрабатывается, владелец комнаты, добавляем клавиатуру
                         if (processingPlayer.equals(room.getOwner())) {
                             String buttonsId = IdGenerator.generateForButton();
                             roomInfo.setReplyMarkup(getOwnerInlineMarkup(room, buttonsId));
@@ -84,6 +85,7 @@ public class InRoomHandler implements InternalHandler{
                         notifyPlayers(room, processingPlayer.getNickname() + " вышел из комнаты.");
                         break;
                     default:
+                        // сообщение в чат всем игрокам
                         String text = update.getMessage().getText();
 
                         List<Player> playersWithoutWriter = room.getPlayers().stream()
@@ -113,8 +115,8 @@ public class InRoomHandler implements InternalHandler{
                         SendMessage messageToKickedPlayer = new SendMessage(String.valueOf(kickedPlayer.getChatId()), processingPlayer.getNickname() + " выгнал вас из комнаты.");
                         MainMenuKeyboard.setKeyboard(messageToKickedPlayer);
 
-                        String messageText = processingPlayer.getNickname() + " выгнал "+kickedPlayer.getNickname()+" из комнаты.";
-                        notifyPlayers(room,messageText);
+                        String messageToPlayers = processingPlayer.getNickname() + " выгнал "+kickedPlayer.getNickname()+" из комнаты.";
+                        notifyPlayers(room,messageToPlayers);
 
                         chatStateService.setState(kickedPlayer.getChatId(), MainMenuHandler.getStateForGettingMainMenu());
                         telegramBot.sendMessage(messageToKickedPlayer);

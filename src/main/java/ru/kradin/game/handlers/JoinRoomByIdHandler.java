@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.kradin.game.enums.SpecialLocalState;
 import ru.kradin.game.exceptions.PlayerDoesNotExistException;
 import ru.kradin.game.exceptions.RoomDoesNotExistException;
 import ru.kradin.game.keyboards.BackKeyboard;

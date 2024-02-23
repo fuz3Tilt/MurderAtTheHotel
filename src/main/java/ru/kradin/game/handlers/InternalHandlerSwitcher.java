@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+/**
+ * Используется для смены обработчика
+ */
 public class InternalHandlerSwitcher {
     private Map<String,InternalHandler> nameHandlerMap = new HashMap<>();
     @Autowired
@@ -37,7 +40,7 @@ public class InternalHandlerSwitcher {
 
             String usefulStateData = stateData[0]+";"+stateData[1]+";"+stateData[2];
             String usefulCallbackData = callbackData[0]+";"+callbackData[1]+";"+callbackData[2];
-
+            // проверяем, соответствует ли нажатая кнопка текущему состоянию
             if (!usefulStateData.equals(usefulCallbackData)) {
                 return;
             }

@@ -36,6 +36,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         internalHandlerSwitcher.init(internalHandlers,this);
         this.internalHandlerSwitcher = internalHandlerSwitcher;
 
+        //добавляем команды во всплывающий список бота
         List<BotCommand> listOfCommands = new ArrayList<>();
         menuCommands.stream().forEach(menuCommand -> {
             menuCommand.setTelegramBot(this);

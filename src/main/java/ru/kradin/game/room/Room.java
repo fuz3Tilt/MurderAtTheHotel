@@ -44,10 +44,6 @@ public class Room {
         return owner;
     }
 
-    /**
-     * Возвращает копию List
-     * @return
-     */
     public List<Player> getPlayers() {
         return players;
     }
