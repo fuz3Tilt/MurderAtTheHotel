@@ -12,16 +12,16 @@ public class Room {
     private String id;
     private Player owner;
     private List<Player> players = new ArrayList<>();
-    private RoomsObserver roomsObserver;
+    private RoomObserver roomObserver;
     private RoomSettings roomSettings;
 
-    Room(RoomsObserver roomsObserver, Player owner, RoomSettings roomSettings) {
+    Room(RoomObserver roomObserver, Player owner, RoomSettings roomSettings) {
         this.owner = owner;
-        this.roomsObserver = roomsObserver;
+        this.roomObserver = roomObserver;
         players.add(owner);
         this.roomSettings = roomSettings;
         setId();
-        roomsObserver.notify(this, RoomNotifyType.ROOM_CREATED);
+        roomObserver.notify(this, RoomNotifyType.ROOM_CREATED);
     }
 
     public void addPlayer(Player player) {
@@ -33,7 +33,7 @@ public class Room {
         if (owner.equals(player) && players.size()!=0) {
             owner = players.get(0);
         }
-        roomsObserver.notify(this,RoomNotifyType.PLAYER_LEFT);
+        roomObserver.notify(this,RoomNotifyType.PLAYER_LEFT);
     }
 
     public String getId() {
@@ -75,7 +75,7 @@ public class Room {
 
     private void setId() {
         String preId = IdGenerator.generate();
-        while(roomsObserver.isRoomIdInUse(preId)) {
+        while(roomObserver.isRoomIdInUse(preId)) {
             preId = IdGenerator.generate();
         }
         id = preId;

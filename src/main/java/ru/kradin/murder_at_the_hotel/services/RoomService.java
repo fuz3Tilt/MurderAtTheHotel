@@ -7,20 +7,20 @@ import ru.kradin.murder_at_the_hotel.models.Player;
 import ru.kradin.murder_at_the_hotel.room.Room;
 import ru.kradin.murder_at_the_hotel.room.RoomFactory;
 import ru.kradin.murder_at_the_hotel.room.RoomSettings;
-import ru.kradin.murder_at_the_hotel.room.RoomsObserver;
+import ru.kradin.murder_at_the_hotel.room.RoomObserver;
 
 import java.util.List;
 
 @Service
 public class RoomService {
-    private RoomsObserver roomsObserver;
+    private RoomObserver roomObserver;
     private PlayerService playerService;
     private RoomFactory roomFactory;
 
-    public RoomService(RoomsObserver roomsObserver, PlayerService playerService) {
-        this.roomsObserver = roomsObserver;
+    public RoomService(RoomObserver roomObserver, PlayerService playerService) {
+        this.roomObserver = roomObserver;
         this.playerService = playerService;
-        this.roomFactory = new RoomFactory(roomsObserver);
+        this.roomFactory = new RoomFactory(roomObserver);
     }
 
     public Room createRoomByChatIdAndRoomSettings(long chatId, RoomSettings roomSettings) throws PlayerDoesNotExistException {
@@ -29,11 +29,11 @@ public class RoomService {
     }
 
     public List<Room> getPublicRooms() {
-        return roomsObserver.getPublicRooms();
+        return roomObserver.getPublicRooms();
     }
 
     public Room getRoomByRoomId(String roomId) throws RoomDoesNotExistException {
-        Room room = roomsObserver.getRoomIdRoomMap().get(roomId);
+        Room room = roomObserver.getRoomIdRoomMap().get(roomId);
 
         if (room==null)
             throw new RoomDoesNotExistException();
@@ -43,7 +43,7 @@ public class RoomService {
 
     public Room joinRoomByRoomIdAndPlayerChatId(String roomId, long chatId) throws RoomDoesNotExistException, PlayerDoesNotExistException {
         Player player = playerService.getByChatId(chatId);
-        Room room = roomsObserver.getRoomIdRoomMap().get(roomId);
+        Room room = roomObserver.getRoomIdRoomMap().get(roomId);
 
         if (room==null)
             throw new RoomDoesNotExistException();
