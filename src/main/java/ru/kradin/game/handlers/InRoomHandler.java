@@ -118,7 +118,7 @@ public class InRoomHandler implements InternalHandler{
                         String messageToPlayers = processingPlayer.getNickname() + " выгнал "+kickedPlayer.getNickname()+" из комнаты.";
                         notifyPlayers(room,messageToPlayers);
 
-                        chatStateService.setState(kickedPlayer.getChatId(), MainMenuHandler.getStateForGettingMainMenu());
+                        chatStateService.setState(kickedPlayer.getChatId(), MainMenuHandler.getStateForGettingMainMenuWithoutMessage());
                         telegramBot.sendMessage(messageToKickedPlayer);
                         break;
                 }

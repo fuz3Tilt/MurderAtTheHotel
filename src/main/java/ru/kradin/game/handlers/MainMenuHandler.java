@@ -76,6 +76,10 @@ public class MainMenuHandler implements InternalHandler{
         return StateCreator.create(HANDLER_NAME,SpecialLocalState.EMPTY.toString());
     }
 
+    public static String getStateForGettingMainMenuWithoutMessage() {
+        return StateCreator.create(HANDLER_NAME,DO_NOT_SEND_MAIN_MENU_AGAIN);
+    }
+
     private void sendMainMenuKeyboard(long chatId) {
         String text = HANDLER_NAME;
         SendMessage sendMessage = new SendMessage(String.valueOf(chatId),text);
