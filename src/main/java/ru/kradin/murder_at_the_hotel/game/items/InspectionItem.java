@@ -14,7 +14,7 @@ public class InspectionItem implements Item {
 
     public InspectionItem() {
         charge = true;
-        broken= true;
+        broken= false;
     }
 
     @Override
@@ -48,28 +48,32 @@ public class InspectionItem implements Item {
             private boolean active = true;
             @Override
             public void perform() {
-                Gamer targetCreator = target.getTargetCreator();
-                Gamer targetGamer = target.getTargets().get(0);
+                if (active) {
+                    Gamer targetCreator = target.getTargetCreator();
+                    Gamer targetGamer = target.getTargets().get(0);
 
-                StringBuilder messageBuilder = new StringBuilder();
-                messageBuilder.append("У игрока ").append(targetGamer.getNickname()).append(" найдены предметы:\n");
-                int itemCount = 1;
-                for (Item item : targetGamer.getBag().getItems()) {
-                    messageBuilder.append(itemCount).append(") ").append(item.getName()).append("\n");
-                    itemCount++;
+                    StringBuilder messageBuilder = new StringBuilder();
+                    messageBuilder.append("У игрока ").append(targetGamer.getNickname()).append(" найдены предметы:\n");
+                    int itemCount = 1;
+                    for (Item item : targetGamer.getBag().getItems()) {
+                        messageBuilder.append(itemCount).append(") ").append(item.getName()).append("\n");
+                        itemCount++;
+                    }
+                    String message = messageBuilder.toString();
+                    targetCreator.getMessagesToPlayer().add(message);
+
+                    if (targetCreator.leavesEvidences())
+                        targetGamer.addEvidences(new Evidence(targetCreator));
+
+                    if (targetGamer.leavesEvidences())
+                        targetCreator.addEvidences(new Evidence(targetGamer));
+
+                    active = false;
                 }
-                String message = messageBuilder.toString();
-                targetCreator.getMessagesToPlayer().add(message);
-
-                if (targetCreator.leavesEvidences())
-                    targetGamer.addEvidences(new Evidence(targetCreator));
-
-                if (targetGamer.leavesEvidences())
-                    targetCreator.addEvidences(new Evidence(targetGamer));
-
-                active = false;
             }
         };
+        charge = false;
+        broken = true;
         return abilityPerformer;
     }
 

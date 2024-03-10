@@ -61,13 +61,11 @@ public class ArmatureItem implements Item {
 
                     if (targetGamer.leavesEvidences())
                         targetCreator.addEvidences(new Evidence(targetGamer));
-
-                    Random random = new Random();
-
-                    broken = random.nextBoolean();
                 }
             }
         };
+        Random random = new Random();
+        broken = random.nextBoolean();
         charge = false;
         return abilityPerformer;
     }

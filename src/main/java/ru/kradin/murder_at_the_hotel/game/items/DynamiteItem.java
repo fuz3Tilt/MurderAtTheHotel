@@ -50,16 +50,18 @@ public class DynamiteItem implements Item {
             private boolean active = true;
             @Override
             public void perform() {
-                Gamer targetCreator = target.getTargetCreator();
-                Gamer targetGamer = target.getTargets().get(0);
+                if (active) {
+                    Gamer targetCreator = target.getTargetCreator();
+                    Gamer targetGamer = target.getTargets().get(0);
 
-                targetGamer.kill(targetCreator, KillType.EXPLOSIVE_DEVICE);
+                    targetGamer.kill(targetCreator, KillType.EXPLOSIVE_DEVICE);
 
-                if (targetGamer.leavesEvidences())
-                    targetCreator.addEvidences(new Evidence(targetGamer));
+                    if (targetGamer.leavesEvidences())
+                        targetCreator.addEvidences(new Evidence(targetGamer));
 
-                targetGamer.addAffect(new CommonAffect<EvidenceAffectType>(EvidenceAffectType.DOES_NOT_STORE_EVIDENCE, 1));
-                active = false;
+                    targetGamer.addAffect(new CommonAffect<EvidenceAffectType>(EvidenceAffectType.DOES_NOT_STORE_EVIDENCE, 1));
+                    active = false;
+                }
             }
         };
         broken = true;
