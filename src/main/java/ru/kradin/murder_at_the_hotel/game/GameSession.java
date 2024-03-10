@@ -6,7 +6,9 @@ import ru.kradin.murder_at_the_hotel.services.ItemAssignerService;
 import ru.kradin.murder_at_the_hotel.services.RoleAssignerService;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class GameSession {
     private static final int GAME_STARTED_STAGE = 0;
@@ -21,11 +23,14 @@ public class GameSession {
     private Room room;
     private RoleAssignerService roleAssignerService;
     private ItemAssignerService itemAssignerService;
+    private Queue<String> messagesToPlayers;
 
 
     public GameSession(Room room) {
         this.room = room;
         stage = GAME_STARTED_STAGE;
+
+        messagesToPlayers = new LinkedList<>();
 
         gamers = new ArrayList<>();
         for (Player player: room.getPlayers()) {
@@ -41,5 +46,9 @@ public class GameSession {
 
     private void startGame() {
 
+    }
+
+    public void addMessageToPlayers(String message) {
+        messagesToPlayers.add(message);
     }
 }
