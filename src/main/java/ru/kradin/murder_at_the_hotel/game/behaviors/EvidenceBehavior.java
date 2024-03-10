@@ -12,12 +12,10 @@ import java.util.List;
 public class EvidenceBehavior implements Behavior<EvidenceAffectType> {
     private List<Affect<EvidenceAffectType>> affects;
     private List<Evidence> evidences;
-    private boolean leavesEvidences;
 
     public EvidenceBehavior() {
         affects = new ArrayList<>();
         evidences = new ArrayList<>();
-        leavesEvidences = true;
     }
 
     @Override
@@ -36,7 +34,12 @@ public class EvidenceBehavior implements Behavior<EvidenceAffectType> {
         evidences.clear();
     }
     public boolean leavesEvidences() {
-        return leavesEvidences;
+        for (Affect<EvidenceAffectType> affect: affects) {
+            if (affect.getAffectType().equals(EvidenceAffectType.LEAVES_NO_EVIDENCE)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void addEvidence(Evidence evidence) {
