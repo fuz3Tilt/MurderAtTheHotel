@@ -3,7 +3,6 @@ package ru.kradin.murder_at_the_hotel.game;
 import ru.kradin.murder_at_the_hotel.game.abilities.AbilityPerformer;
 import ru.kradin.murder_at_the_hotel.game.affects.Affect;
 import ru.kradin.murder_at_the_hotel.game.affects.types.EvidenceAffectType;
-import ru.kradin.murder_at_the_hotel.game.affects.types.TeamAffectType;
 import ru.kradin.murder_at_the_hotel.game.behaviors.*;
 import ru.kradin.murder_at_the_hotel.game.items.Bag;
 import ru.kradin.murder_at_the_hotel.game.roles.Role;
@@ -22,7 +21,6 @@ public class Gamer {
     private CommunicationBehavior communicationBehavior;
     private NightActionsBehavior nightActionsBehavior;
     private PlanedActionsBehavior planedActionsBehavior;
-    private TeamBehavior teamBehavior;
     private VotingBehavior votingBehavior;
     private Queue<String> messagesToPlayer;
 
@@ -35,7 +33,6 @@ public class Gamer {
         communicationBehavior = new CommunicationBehavior();
         nightActionsBehavior = new NightActionsBehavior();
         planedActionsBehavior = new PlanedActionsBehavior();
-        teamBehavior = new TeamBehavior(this);
         votingBehavior = new VotingBehavior();
     }
 
@@ -75,36 +72,17 @@ public class Gamer {
         communicationBehavior.update();
         nightActionsBehavior.update();
         planedActionsBehavior.update();
-        teamBehavior.update();
         votingBehavior.update();
 
     }
     public void addAffect(Affect affect) {
-        if (affect.getAffectType() instanceof TeamAffectType) {
-            teamBehavior.addAffect(affect);
-        } else if (affect.getAffectType() instanceof EvidenceAffectType) {
+        if (affect.getAffectType() instanceof EvidenceAffectType) {
             evidenceBehavior.addAffect(affect);
         }
     }
 
-    public void changeTeam(Gamer teamChanger) {
-        teamBehavior.changeTeam(teamChanger );
-    }
-
-    public void setViningTeam(Team viningTeam) {
-        teamBehavior.setViningTeam(viningTeam);
-    }
-
-    public void setKnownTeam(Team knownTeam) {
-        teamBehavior.setKnownTeam(knownTeam);
-    }
-
-    public Team getViningTeam() {
-        return teamBehavior.getViningTeam();
-    }
-
-    public Team getKnownTeam() {
-        return teamBehavior.getKnownTeam();
+    public void changeRole(Role newRole) {
+        role = newRole;
     }
 
     public boolean leavesEvidences() {

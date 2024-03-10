@@ -1,10 +1,8 @@
 package ru.kradin.murder_at_the_hotel.game.behaviors;
 
 import ru.kradin.murder_at_the_hotel.game.Evidence;
-import ru.kradin.murder_at_the_hotel.game.Gamer;
 import ru.kradin.murder_at_the_hotel.game.affects.Affect;
 import ru.kradin.murder_at_the_hotel.game.affects.types.EvidenceAffectType;
-import ru.kradin.murder_at_the_hotel.game.affects.types.TeamAffectType;
 
 import java.util.ArrayList;
 import java.util.List;

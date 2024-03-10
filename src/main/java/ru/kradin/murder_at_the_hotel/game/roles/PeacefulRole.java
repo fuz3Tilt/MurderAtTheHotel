@@ -3,7 +3,6 @@ package ru.kradin.murder_at_the_hotel.game.roles;
 import ru.kradin.murder_at_the_hotel.game.KnownTeam;
 import ru.kradin.murder_at_the_hotel.game.ViningTeam;
 import ru.kradin.murder_at_the_hotel.game.abilities.Ability;
-import ru.kradin.murder_at_the_hotel.game.abilities.CanJoinMafiaAbility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ public class PeacefulRole implements Role {
 
     public PeacefulRole() {
         abilities = new ArrayList<>();
-        abilities.add(new CanJoinMafiaAbility());
     }
     @Override
     public String getName() {
