@@ -72,6 +72,11 @@ public class DynamiteItem implements Item {
     }
 
     @Override
+    public int getTargetCount() {
+        return 1;
+    }
+
+    @Override
     public List<Gamer> getAvailableTargets(Gamer abilityUser, List<Gamer> allGamers) {
         List<Gamer> availableTargets = new ArrayList<>();
         for (Gamer gamer:allGamers) {

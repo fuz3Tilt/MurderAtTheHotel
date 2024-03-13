@@ -14,6 +14,7 @@ public interface Item {
     boolean isBroken();
     void updateCharge();
     AbilityPerformer getAbilityPerformer(Target target);
+    public int getTargetCount();
     List<Gamer> getAvailableTargets(Gamer abilityUser, List<Gamer> allGamers);
     List<Class<? extends Role>> getRelatedRoles();
     Item clone();

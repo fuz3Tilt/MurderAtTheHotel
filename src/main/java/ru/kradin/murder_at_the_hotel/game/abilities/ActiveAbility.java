@@ -12,5 +12,6 @@ public interface ActiveAbility extends Ability {
     public boolean hasCharge();
     public void updateCharge();
     public AbilityPerformer getAbilityPerformer(Target target);
+    public int getTargetCount();
     public List<Gamer> getAvailableTargets(Gamer abilityUser, List<Gamer> allGamers);
 }
