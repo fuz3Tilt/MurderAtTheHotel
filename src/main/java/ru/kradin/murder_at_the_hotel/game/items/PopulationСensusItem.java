@@ -4,6 +4,8 @@ import ru.kradin.murder_at_the_hotel.game.Gamer;
 import ru.kradin.murder_at_the_hotel.game.ViningTeam;
 import ru.kradin.murder_at_the_hotel.game.abilities.AbilityPerformer;
 import ru.kradin.murder_at_the_hotel.game.abilities.Target;
+import ru.kradin.murder_at_the_hotel.game.roles.PeacefulRole;
+import ru.kradin.murder_at_the_hotel.game.roles.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,5 +77,13 @@ public class PopulationСensusItem implements Item{
             }
         }
         return availableTargets;
+    }
+
+    @Override
+    public List<Class<? extends Role>> getRelatedRoles() {
+        Class<? extends Role> role1 = PeacefulRole.class;
+        List<Class<? extends Role>> relatedRoles = new ArrayList<>();
+        relatedRoles.add(role1);
+        return relatedRoles;
     }
 }

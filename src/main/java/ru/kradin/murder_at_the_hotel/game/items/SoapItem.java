@@ -5,6 +5,7 @@ import ru.kradin.murder_at_the_hotel.game.abilities.AbilityPerformer;
 import ru.kradin.murder_at_the_hotel.game.abilities.Target;
 import ru.kradin.murder_at_the_hotel.game.affects.CommonAffect;
 import ru.kradin.murder_at_the_hotel.game.affects.types.EvidenceAffectType;
+import ru.kradin.murder_at_the_hotel.game.roles.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,5 +69,10 @@ public class SoapItem implements Item{
         List<Gamer> availableTargets = new ArrayList<>();
         availableTargets.add(abilityUser);
         return availableTargets;
+    }
+
+    @Override
+    public List<Class<? extends Role>> getRelatedRoles() {
+        return new ArrayList<>();
     }
 }
