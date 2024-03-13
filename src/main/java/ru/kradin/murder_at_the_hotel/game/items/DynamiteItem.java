@@ -89,4 +89,9 @@ public class DynamiteItem implements Item {
         relatedRoles.add(role1);
         return relatedRoles;
     }
+
+    @Override
+    public Item clone() {
+        return new DynamiteItem();
+    }
 }

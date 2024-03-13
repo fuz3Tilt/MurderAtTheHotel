@@ -16,4 +16,5 @@ public interface Item {
     AbilityPerformer getAbilityPerformer(Target target);
     List<Gamer> getAvailableTargets(Gamer abilityUser, List<Gamer> allGamers);
     List<Class<? extends Role>> getRelatedRoles();
+    Item clone();
 }

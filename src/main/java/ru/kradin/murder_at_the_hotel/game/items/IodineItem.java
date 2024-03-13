@@ -5,4 +5,9 @@ public class IodineItem extends SoapItem {
     public String getName() {
         return "Йод";
     }
+
+    @Override
+    public Item clone() {
+        return new IodineItem();
+    }
 }

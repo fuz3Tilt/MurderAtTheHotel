@@ -87,4 +87,9 @@ public class ShotgunItem implements Item {
     public List<Class<? extends Role>> getRelatedRoles() {
         return new ArrayList<>();
     }
+
+    @Override
+    public Item clone() {
+        return new ShotgunItem();
+    }
 }

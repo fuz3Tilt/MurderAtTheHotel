@@ -97,4 +97,9 @@ public class InspectionItem implements Item {
         relatedRoles.add(role1);
         return relatedRoles;
     }
+
+    @Override
+    public Item clone() {
+        return new InspectionItem();
+    }
 }
