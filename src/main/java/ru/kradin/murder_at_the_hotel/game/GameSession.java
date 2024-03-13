@@ -40,7 +40,6 @@ public class GameSession {
         roleAssignerService.assignRoles(gamers);
         itemAssignerService.assignItems(gamers);
 
-
         startGame();
     }
 

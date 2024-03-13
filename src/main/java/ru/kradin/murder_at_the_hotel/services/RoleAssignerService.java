@@ -5,6 +5,7 @@ import ru.kradin.murder_at_the_hotel.game.Gamer;
 import ru.kradin.murder_at_the_hotel.game.ViningTeam;
 import ru.kradin.murder_at_the_hotel.game.roles.NorthMafiaRole;
 import ru.kradin.murder_at_the_hotel.game.roles.PeacefulRole;
+import ru.kradin.murder_at_the_hotel.game.roles.Role;
 import ru.kradin.murder_at_the_hotel.game.roles.SherifRole;
 
 import java.util.HashSet;
@@ -44,14 +45,23 @@ public class RoleAssignerService {
 
             if (roleIndex == 1) {
                 gamer.setRole(new NorthMafiaRole());
-            }
-
-            if (roleIndex == 2) {
+            } else if (roleIndex == 2) {
                 gamer.setRole(new PeacefulRole());
-            }
-
-            if (roleIndex == 3) {
+            } else {
                 gamer.setRole(new SherifRole());
             }
+    }
+
+    public static Role getRandomRole() {
+        Random random = new Random();
+        int roleIndex = random.nextInt(3) + 1;
+
+        if (roleIndex == 1) {
+            return new NorthMafiaRole();
+        } else if (roleIndex == 2) {
+            return new PeacefulRole();
+        } else {
+            return new SherifRole();
+        }
     }
 }

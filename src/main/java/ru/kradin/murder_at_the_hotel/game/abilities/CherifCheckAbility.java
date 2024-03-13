@@ -2,7 +2,7 @@ package ru.kradin.murder_at_the_hotel.game.abilities;
 
 import ru.kradin.murder_at_the_hotel.game.Evidence;
 import ru.kradin.murder_at_the_hotel.game.Gamer;
-import ru.kradin.murder_at_the_hotel.utils.GameHelper;
+import ru.kradin.murder_at_the_hotel.services.RoleAssignerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class CherifCheckAbility implements ActiveAbility {
                     if (rightPerform) {
                         roleName = abilityTarget.getRole().getName();
                     } else {
-                        roleName = GameHelper.getRandomRole().getName();
+                        roleName = RoleAssignerService.getRandomRole().getName();
                     }
                     targetCreator.getMessagesToPlayer().add("У игрока " + abilityTarget.getNickname() + " роль " + roleName + ".");
 
