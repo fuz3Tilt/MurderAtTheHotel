@@ -24,6 +24,14 @@ public class Room {
         roomObserver.notify(this, RoomNotifyType.ROOM_CREATED);
     }
 
+    public void setNotSearchable() {
+        roomObserver.notify(this,RoomNotifyType.NOT_SEARCHABLE);
+    }
+
+    public void setSearchable() {
+        roomObserver.notify(this,RoomNotifyType.SEARCHABLE);
+    }
+
     public void addPlayer(Player player) {
         players.add(player);
     }

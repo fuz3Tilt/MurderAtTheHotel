@@ -1,9 +1,11 @@
 package ru.kradin.murder_at_the_hotel.game;
 
+import ru.kradin.murder_at_the_hotel.enums.GameSessionNotifyType;
 import ru.kradin.murder_at_the_hotel.models.Player;
 import ru.kradin.murder_at_the_hotel.room.Room;
 import ru.kradin.murder_at_the_hotel.services.ItemAssignerService;
 import ru.kradin.murder_at_the_hotel.services.RoleAssignerService;
+import ru.kradin.murder_at_the_hotel.utils.IdGenerator;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,6 +20,8 @@ public class GameSession {
     private static final int DISCUSSION_STAGE = 4;
     private static final int VOTING_STAGE = 5;
     private static final int GAME_ENDED_STAGE = 6;
+    private String id;
+    private GameSessionObserver gameSessionObserver;
     private int stage;
     private List<Gamer> gamers;
     private Room room;
@@ -26,9 +30,15 @@ public class GameSession {
     private Queue<String> messagesToPlayers;
 
 
-    public GameSession(Room room) {
+    public GameSession(Room room, GameSessionObserver gameSessionObserver, RoleAssignerService roleAssignerService, ItemAssignerService itemAssignerService) {
         this.room = room;
+        this.gameSessionObserver = gameSessionObserver;
+        this.roleAssignerService = roleAssignerService;
+        this.itemAssignerService = itemAssignerService;
+
         stage = GAME_STARTED_STAGE;
+
+        setId();
 
         messagesToPlayers = new LinkedList<>();
 
@@ -40,11 +50,25 @@ public class GameSession {
         roleAssignerService.assignRoles(gamers);
         itemAssignerService.assignItems(gamers);
 
+        gameSessionObserver.update(this, GameSessionNotifyType.GAME_STARTED);
+
         startGame();
     }
 
-    private void startGame() {
+    public String getId() {
+        return id;
+    }
 
+    private void setId() {
+        String preId = IdGenerator.generate();
+        while(gameSessionObserver.isGameSessionIdInUse(preId)) {
+            preId = IdGenerator.generate();
+        }
+        id = preId;
+    }
+
+    private void startGame() {
+        //код переключения состояний
     }
 
     public void addMessageToPlayers(String message) {

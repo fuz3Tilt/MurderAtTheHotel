@@ -17,7 +17,9 @@ public class RoomObserver {
         String roomId = room.getId();
         switch (roomNotifyType) {
             case ROOM_CREATED:
+            case SEARCHABLE:
                 roomIdRoomMap.put(roomId, room);
+
                 if (room.isPublic())
                     publicRooms.add(room);
                 break;
@@ -28,6 +30,12 @@ public class RoomObserver {
                     if (room.isPublic())
                         publicRooms.remove(room);
                 }
+                break;
+            case NOT_SEARCHABLE:
+                roomIdRoomMap.remove(roomId);
+
+                if (room.isPublic())
+                    publicRooms.remove(room);
                 break;
         }
     }

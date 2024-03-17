@@ -11,13 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import ru.kradin.murder_at_the_hotel.enums.SpecialLocalState;
 import ru.kradin.murder_at_the_hotel.exceptions.PlayerDoesNotExistException;
 import ru.kradin.murder_at_the_hotel.exceptions.RoomDoesNotExistException;
+import ru.kradin.murder_at_the_hotel.game.GameSession;
 import ru.kradin.murder_at_the_hotel.keyboards.MainMenuKeyboard;
 import ru.kradin.murder_at_the_hotel.models.Player;
 import ru.kradin.murder_at_the_hotel.room.Room;
-import ru.kradin.murder_at_the_hotel.services.ChatStateService;
-import ru.kradin.murder_at_the_hotel.services.PlayerService;
-import ru.kradin.murder_at_the_hotel.services.RoomService;
-import ru.kradin.murder_at_the_hotel.services.TelegramBot;
+import ru.kradin.murder_at_the_hotel.services.*;
 import ru.kradin.murder_at_the_hotel.utils.IdGenerator;
 import ru.kradin.murder_at_the_hotel.utils.StateCreator;
 
@@ -31,6 +29,7 @@ public class InRoomHandler implements InternalHandler{
     private static final String ROOM_CREATED_LOCAL_STATE = "rc";
     private static final String PLAYER_JOINED_LOCAL_STATE = "pj";
     private static final String KICK_LOCAL_STATE = "k";
+    private static final String START_GAME_LOCAL_STATE = "s";
     private static final String ABOUT_ROOM_KEY_TEXT = "О комнате ℹ\uFE0F";
     private static final String EXIT_KEY_TEXT = "Выйти \uD83D\uDEAA";
     private static final String TEXT_FOR_ROOM_INFO = "\n\nВы можете общаться друг с другом с помощью бота!";
@@ -39,6 +38,8 @@ public class InRoomHandler implements InternalHandler{
     private InternalHandlerSwitcher internalHandlerSwitcher;
     @Autowired
     private ChatStateService chatStateService;
+    @Autowired
+    private GameSessionService gameSessionService;
     @Autowired
     private RoomService roomService;
     @Autowired
@@ -121,6 +122,13 @@ public class InRoomHandler implements InternalHandler{
                         chatStateService.setState(kickedPlayer.getChatId(), MainMenuHandler.getStateForGettingMainMenuWithoutMessage());
                         telegramBot.sendMessage(messageToKickedPlayer);
                         break;
+                    case START_GAME_LOCAL_STATE:
+                        GameSession gameSession = gameSessionService.startGame(room);
+                        for (Player player: room.getPlayers()) {
+                            chatStateService.setState(player.getChatId(), InGameHandler.getStateForEnteringHandler(gameSession.getId()));
+                            telegramBot.sendMessage(InGameHandler.getControlMenuMessage(player.getChatId()));
+                        }
+                        break;
                 }
             }
         } catch (RoomDoesNotExistException e) {
@@ -156,9 +164,17 @@ public class InRoomHandler implements InternalHandler{
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
 
+        var startButton = new InlineKeyboardButton();
+        startButton.setText("Начать игру");
+        startButton.setCallbackData(StateCreator.create(HANDLER_NAME, room.getId(), buttonsId, START_GAME_LOCAL_STATE));
+
+        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+        rowInLine.add(startButton);
+        rowsInLine.add(rowInLine);
+
         for (Player player:room.getPlayers()) {
             if (!player.equals(room.getOwner())) {
-                List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+                rowInLine = new ArrayList<>();
                 var kickButton = new InlineKeyboardButton();
                 kickButton.setText("Выгнать " + player.getNickname());
                 kickButton.setCallbackData(StateCreator.create(HANDLER_NAME, room.getId(), buttonsId, KICK_LOCAL_STATE, String.valueOf(player.getChatId())));
