@@ -197,6 +197,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                             sendVoteMessage(gamer, gameSession);
                         }
                     }
+                    break;
                     case NIGHT: {
                         StringBuilder notificationBuilder = new StringBuilder();
                         for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
@@ -395,9 +396,9 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
 
             List<InlineKeyboardButton> rowInLine;
 
-            for (Gamer gamer : gameSession.getVotingTargets(voter)) {
+            String buttonsIds = IdGenerator.generateForButton();
+                for (Gamer gamer : gameSession.getVotingTargets(voter)) {
                 if (gamer.isAlive()) {
-                    String buttonsIds = IdGenerator.generateForButton();
                     rowInLine = new ArrayList<>();
                     var voteButton = new InlineKeyboardButton();
                     voteButton.setText(gamer.getNickname());

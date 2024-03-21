@@ -6,7 +6,7 @@ import java.util.Base64;
 public class IdGenerator {
     public static String generate() {
         SecureRandom secureRandom = new SecureRandom();
-        byte[] idBytes = new byte[20];
+        byte[] idBytes = new byte[16];
         secureRandom.nextBytes(idBytes);
         return Base64.getEncoder().withoutPadding().encodeToString(idBytes);
     }
