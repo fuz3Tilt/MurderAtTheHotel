@@ -18,10 +18,7 @@ public class Gamer {
     private Role role;
     private EvidenceBehavior evidenceBehavior;
     private HealthBehavior healthBehavior;
-    private CommunicationBehavior communicationBehavior;
-    private NightActionsBehavior nightActionsBehavior;
     private PlanedActionsBehavior planedActionsBehavior;
-    private VotingBehavior votingBehavior;
     private Queue<String> messagesToPlayer;
 
     public Gamer(long chatId, String nickname) {
@@ -30,10 +27,7 @@ public class Gamer {
         messagesToPlayer = new LinkedList<>();
         evidenceBehavior = new EvidenceBehavior();
         healthBehavior = new HealthBehavior();
-        communicationBehavior = new CommunicationBehavior();
-        nightActionsBehavior = new NightActionsBehavior();
         planedActionsBehavior = new PlanedActionsBehavior();
-        votingBehavior = new VotingBehavior();
     }
 
     public void addPlanedAction(AbilityPerformer abilityPerformer) {
@@ -74,11 +68,7 @@ public class Gamer {
     public void updateBehavior() {
         evidenceBehavior.update();
         healthBehavior.update();
-        communicationBehavior.update();
-        nightActionsBehavior.update();
         planedActionsBehavior.update();
-        votingBehavior.update();
-
     }
     public void addAffect(Affect affect) {
         if (affect.getAffectType() instanceof EvidenceAffectType) {
