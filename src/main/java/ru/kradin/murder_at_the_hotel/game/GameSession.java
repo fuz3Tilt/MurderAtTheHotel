@@ -20,6 +20,7 @@ public class GameSession {
     private RoleAssignerService roleAssignerService;
     private ItemAssignerService itemAssignerService;
     private Queue<String> messagesToPlayers;
+    private Map<Gamer, Integer> votesCountMap;
 
 
     public GameSession(Room room, GameSessionObserver gameSessionObserver, RoleAssignerService roleAssignerService, ItemAssignerService itemAssignerService) {
@@ -123,6 +124,11 @@ public class GameSession {
             taskRepeatTime = 1000*30;
         }
         timer.schedule(timerTask, 1000*30, taskRepeatTime);
+    }
+
+    public void vote(Gamer voter, Gamer target) {
+        int currentVotes = votesCountMap.getOrDefault(target, 0);
+        votesCountMap.put(target, currentVotes + 1);
     }
 
     public void addMessageToPlayers(String message) {
