@@ -34,6 +34,11 @@ public class PeacefulRole implements Role {
     }
 
     @Override
+    public RoleColor getRoleColor() {
+        return RoleColor.WHITE;
+    }
+
+    @Override
     public List<Ability> getAbilities() {
         return abilities;
     }

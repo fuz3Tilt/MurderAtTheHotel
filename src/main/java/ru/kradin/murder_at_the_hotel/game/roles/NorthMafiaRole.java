@@ -37,6 +37,11 @@ public class NorthMafiaRole implements Role{
     }
 
     @Override
+    public RoleColor getRoleColor() {
+        return RoleColor.BLACK;
+    }
+
+    @Override
     public List<Ability> getAbilities() {
         return abilities;
     }

@@ -35,6 +35,11 @@ public class SherifRole implements Role{
     }
 
     @Override
+    public RoleColor getRoleColor() {
+        return RoleColor.RED;
+    }
+
+    @Override
     public List<Ability> getAbilities() {
         return abilities;
     }

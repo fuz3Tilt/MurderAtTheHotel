@@ -14,6 +14,7 @@ import java.util.Queue;
 public class Gamer {
     private long chatId;
     private String nickname;
+    private boolean inGame;
     private Bag bag;
     private Role role;
     private EvidenceBehavior evidenceBehavior;
@@ -28,6 +29,7 @@ public class Gamer {
         evidenceBehavior = new EvidenceBehavior();
         healthBehavior = new HealthBehavior();
         planedActionsBehavior = new PlanedActionsBehavior();
+        inGame = true;
     }
 
     public void addPlanedAction(AbilityPerformer abilityPerformer) {
@@ -102,5 +104,9 @@ public class Gamer {
 
     public String getNickname() {
         return nickname;
+    }
+
+    public boolean isInGame() {
+        return inGame;
     }
 }

@@ -11,5 +11,6 @@ public interface Role {
     String getDescription();
     ViningTeam getViningTeam();
     KnownTeam getKnownTeam();
+    RoleColor getRoleColor();
     List<Ability> getAbilities();
 }
