@@ -54,12 +54,17 @@ public class Gamer {
     public Bag getBag() {
         return bag;
     }
+
     public void setBag(Bag bag) {
         this.bag = bag;
     }
 
     public boolean isAlive() {
         return healthBehavior.isAlive();
+    }
+
+    public boolean isCapable() {
+        return healthBehavior.isCapable();
     }
 
     public void kill(Gamer killer, KillType killType) {

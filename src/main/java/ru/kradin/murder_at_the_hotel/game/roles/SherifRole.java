@@ -36,6 +36,6 @@ public class SherifRole implements Role{
 
     @Override
     public List<Ability> getAbilities() {
-        return null;
+        return abilities;
     }
 }

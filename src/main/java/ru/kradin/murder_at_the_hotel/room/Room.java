@@ -44,6 +44,10 @@ public class Room {
         roomObserver.notify(this,RoomNotifyType.PLAYER_LEFT);
     }
 
+    public RoomSettings getRoomSettings() {
+        return roomSettings;
+    }
+
     public String getId() {
         return id;
     }

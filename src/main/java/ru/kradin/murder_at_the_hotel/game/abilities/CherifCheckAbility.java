@@ -20,7 +20,7 @@ public class CherifCheckAbility implements ActiveAbility {
 
     @Override
     public String getDescription() {
-        return "C 50% вероятностью раскрывает верную роль игрока.";
+        return "C 50% вероятностью раскрывает правильную роль игрока.";
     }
 
     @Override

@@ -36,6 +36,9 @@ public class HealthBehavior implements Behavior<HealthAffectType> {
         return alive;
     }
 
+    public boolean isCapable() {
+        return true;
+    }
 
     public void kill(Gamer killer, KillType killType) {
         alive = false;

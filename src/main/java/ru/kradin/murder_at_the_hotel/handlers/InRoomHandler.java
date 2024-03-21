@@ -126,7 +126,6 @@ public class InRoomHandler implements InternalHandler{
                         GameSession gameSession = gameSessionService.startGame(room);
                         for (Player player: room.getPlayers()) {
                             chatStateService.setState(player.getChatId(), InGameHandler.getStateForEnteringHandler(gameSession.getId()));
-                            telegramBot.sendMessage(InGameHandler.getControlMenuMessage(player.getChatId()));
                         }
                         break;
                 }
