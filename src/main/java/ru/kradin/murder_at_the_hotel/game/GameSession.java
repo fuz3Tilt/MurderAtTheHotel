@@ -206,8 +206,8 @@ public class GameSession {
                     case EXTRA_FIRST_VOTING:
                         messagesToPlayers.clear();
                         StringBuilder infoBuilder = new StringBuilder();
+                        StringBuilder textBuilder = new StringBuilder();
                         if (nextTourGamer != null) {
-                            StringBuilder textBuilder = new StringBuilder();
                             textBuilder.append("Распределение дополнительных голосов:\n");
 
                             List<Gamer> gamersWithMaxVotes = new ArrayList<>();
@@ -269,8 +269,6 @@ public class GameSession {
                         } else {
                             List<Gamer> gamersWithMaxVotes = new ArrayList<>();
                             List<Gamer> gamersWithSecondMaxVotes = new ArrayList<>();
-
-                            StringBuilder textBuilder = new StringBuilder();
 
                             if (!votesCountMap.keySet().isEmpty()) {
                                 textBuilder.append("Распределение голосов:\n");
@@ -366,6 +364,7 @@ public class GameSession {
                         nextTourGamer = null;
                         nextTour = false;
                         nextTourParticipants.clear();
+                        messagesToPlayers.add(textBuilder.toString());
                         messagesToPlayers.add(infoBuilder.toString());
                         stage = GameStage.NIGHT;
                         gameSessionObserver.update(GameSession.this, GameSessionNotifyType.STAGE_CHANGED);
