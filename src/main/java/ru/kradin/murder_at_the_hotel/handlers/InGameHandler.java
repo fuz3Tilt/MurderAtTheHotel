@@ -27,7 +27,6 @@ import ru.kradin.murder_at_the_hotel.utils.MessageIdUtil;
 import ru.kradin.murder_at_the_hotel.utils.StateCreator;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class InGameHandler implements InternalHandler, GameSessionObserver {
@@ -104,6 +103,9 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
             String[] callbackData = update.getCallbackQuery().getData().split(";");
             switch (callbackData[3]) {
                 case VOTE_LOCAL_STATE:
+                    if (!gameSession.isVotingStage())
+                        return;
+
                     long voteTargetChatId = Long.parseLong(callbackData[4]);
                     Gamer target = gameSession.getGamers()
                             .stream()

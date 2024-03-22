@@ -403,6 +403,10 @@ public class GameSession {
         timer.schedule(timerTask, 1000*30, taskRepeatTime);
     }
 
+    public boolean isVotingStage() {
+        return stage == GameStage.VOTING || stage == GameStage.FIRST_VOTING || stage == GameStage.EXTRA_FIRST_VOTING;
+    }
+
     public void vote(Gamer voter, Gamer target) {
         //в дальнейшем количество добавляемых голосов будет вычислять по ценности голоса каждого игрока
         int currentVotes = votesCountMap.getOrDefault(target, 0);
