@@ -420,7 +420,10 @@ public class GameSession {
 
     public List<Gamer> getVotingTargets(Gamer voter) {
         if (nextTour) {
-            return nextTourParticipants;
+            return nextTourParticipants
+                    .stream()
+                    .filter(g -> g.getChatId() != voter.getChatId())
+                    .collect(Collectors.toList());
         } else {
             List<Gamer> votingTargets = new ArrayList<>();
             if (voter.isAlive() && voter.isCapable()) {
