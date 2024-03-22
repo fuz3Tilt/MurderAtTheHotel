@@ -190,6 +190,11 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                             notificationBuilder.append("\n\n");
                         }
                         for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                            SendMessage notification = new SendMessage();
+                            notification.setChatId(gamer.getChatId());
+                            notification.setText(notificationBuilder.toString());
+                            telegramBot.sendMessage(notification);
+
                             SendMessage sendMessage = new SendMessage();
                             sendMessage.setChatId(gamer.getChatId());
                             sendMessage.setText(BOT_MESSAGE_PREFIX + "Идёт дополнительное голосование. Проголосуйте за самого подозрительного игрока.");

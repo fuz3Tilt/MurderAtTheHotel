@@ -173,6 +173,7 @@ public class GameSession {
                                 nextTourGamer = gamersWithMaxVotes.get(0);
                                 nextTour = true;
                                 nextTourParticipants = gamersWithSecondMaxVotes;
+                                infoBuilder.append("По результатам голосования будет проведён дополнительный тур среди игроков, набравших наибольшее количество голосов, после ").append(gamersWithMaxVotes.get(0).getNickname()).append(".");
                             }
                         } else if (gamersWithMaxVotes.size() == 2) {
                             Gamer gamer1 = gamersWithMaxVotes.get(0);
@@ -189,6 +190,7 @@ public class GameSession {
                         } else if (gamersWithMaxVotes.size() > 2) {
                             nextTour = true;
                             nextTourParticipants = gamersWithMaxVotes;
+                            infoBuilder.append("По результатам голосования будет проведён дополнительный тур среди игроков, набравших наибольшее количество голосов.");
                         }
 
                         if (nextTour) {
