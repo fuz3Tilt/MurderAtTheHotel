@@ -92,7 +92,7 @@ public class RoomSettings {
         VotingType(String type) {
             this.type = type;
             if (type.equals("Закрытое голосование"))
-                emoji = "\uD83E\uDD77:";
+                emoji = "\uD83E\uDD77";
             else
                 emoji = "\uD83D\uDC6E";
         }
