@@ -403,15 +403,14 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     var voteButton = new InlineKeyboardButton();
                     voteButton.setText(gamer.getNickname());
                     voteButton.setCallbackData(StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds,VOTE_LOCAL_STATE,String.valueOf(gamer.getChatId())));
-                    chatStateService.setState(voter.getChatId(), StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds));
                     rowInLine.add(voteButton);
                     rowsInLine.add(rowInLine);
                 }
             }
             markupInLine.setKeyboard(rowsInLine);
-
             sendMessage.setReplyMarkup(markupInLine);
 
+            chatStateService.setState(voter.getChatId(), StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds));
             telegramBot.sendMessage(sendMessage);
         }
     }
