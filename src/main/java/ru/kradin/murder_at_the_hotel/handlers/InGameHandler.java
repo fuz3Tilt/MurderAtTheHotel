@@ -9,17 +9,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import ru.kradin.murder_at_the_hotel.enums.GameSessionNotifyType;
-import ru.kradin.murder_at_the_hotel.enums.GameStage;
 import ru.kradin.murder_at_the_hotel.enums.SpecialLocalState;
 import ru.kradin.murder_at_the_hotel.game.GameSession;
 import ru.kradin.murder_at_the_hotel.game.GameSessionObserver;
 import ru.kradin.murder_at_the_hotel.game.Gamer;
+import ru.kradin.murder_at_the_hotel.game.Winners;
 import ru.kradin.murder_at_the_hotel.game.abilities.Ability;
 import ru.kradin.murder_at_the_hotel.game.items.Bag;
 import ru.kradin.murder_at_the_hotel.game.items.Item;
 import ru.kradin.murder_at_the_hotel.game.roles.Role;
 import ru.kradin.murder_at_the_hotel.keyboards.MainMenuKeyboard;
+import ru.kradin.murder_at_the_hotel.models.Player;
+import ru.kradin.murder_at_the_hotel.room.Room;
 import ru.kradin.murder_at_the_hotel.services.ChatStateService;
 import ru.kradin.murder_at_the_hotel.services.TelegramBot;
 import ru.kradin.murder_at_the_hotel.utils.IdGenerator;
@@ -92,10 +93,19 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     break;
                 default:
                     gameSession.getCommunicationParticipants(processingGamer).forEach(g -> {
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(g.getChatId());
-                            sendMessage.setText(processingGamer.getNickname()+": "+message);
-                            telegramBot.sendMessage(sendMessage);
+                        StringBuilder textBuilder = new StringBuilder();
+                        textBuilder.append(processingGamer.getNickname());
+                        if (processingGamer.isAlive()) {
+                            textBuilder.append(": ");
+                        } else {
+                            textBuilder.append(" (мёртв): ");
+                        }
+                        textBuilder.append(message);
+
+                        SendMessage sendMessage = new SendMessage();
+                        sendMessage.setChatId(g.getChatId());
+                        sendMessage.setText(textBuilder.toString());
+                        telegramBot.sendMessage(sendMessage);
                         });
                     break;
             }
@@ -148,9 +158,9 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
     }
 
     @Override
-    public void update(GameSession gameSession, GameSessionNotifyType gameSessionNotifyType) {
-        switch (gameSessionNotifyType) {
-            case GAME_STARTED:
+    public void update(GameSession gameSession) {
+        switch (gameSession.getStage()) {
+            case INTRODUCTION:
                 gameSessionIdGameSessionMap.put(gameSession.getId(), gameSession);
                 for (Gamer gamer: gameSession.getNotificationParticipants()) {
 
@@ -165,87 +175,132 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     telegramBot.sendMessage(sendMessage);
                 }
                 break;
-            case STAGE_CHANGED:
-                switch (gameSession.getStage()) {
-                    case FIRST_DISCUSSION:
-                        for (Gamer gamer : gameSession.getNotificationParticipants()) {
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(gamer.getChatId());
-                            sendMessage.setText(BOT_MESSAGE_PREFIX+"Бла бла бла, убийство кровь кишки вся хуйня. Расскажите другими игрокам, чем вы можете быть полезны расследованию.");
-                            telegramBot.sendMessage(sendMessage);
-                        }
-                        break;
-                    case FIRST_VOTING:
-                    case VOTING:
-                        for (Gamer gamer : gameSession.getNotificationParticipants()) {
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(gamer.getChatId());
-                            sendMessage.setText(BOT_MESSAGE_PREFIX+"Проголосуйте за самого подозрительного игрока.");
-                            telegramBot.sendMessage(sendMessage);
-                            sendVoteMessage(gamer, gameSession);
-                        }
-                        break;
-                    case EXTRA_FIRST_VOTING: {
-                        StringBuilder notificationBuilder = new StringBuilder();
-                        for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
-                            notificationBuilder.append(messageToPlayers);
-                            notificationBuilder.append("\n\n");
-                        }
-                        for (Gamer gamer : gameSession.getNotificationParticipants()) {
-                            SendMessage notification = new SendMessage();
-                            notification.setChatId(gamer.getChatId());
-                            notification.setText(notificationBuilder.toString());
-                            telegramBot.sendMessage(notification);
-
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(gamer.getChatId());
-                            sendMessage.setText(BOT_MESSAGE_PREFIX + "Идёт дополнительное голосование. Проголосуйте за самого подозрительного игрока.");
-                            telegramBot.sendMessage(sendMessage);
-                            sendVoteMessage(gamer, gameSession);
-                        }
-                    }
-                    break;
-                    case NIGHT: {
-                        StringBuilder notificationBuilder = new StringBuilder();
-                        for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
-                            notificationBuilder.append(messageToPlayers);
-                            notificationBuilder.append("\n\n");
-                        }
-
-                        for (Gamer gamer : gameSession.getNotificationParticipants()) {
-                            sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
-
-                            SendMessage notification = new SendMessage();
-                            notification.setChatId(gamer.getChatId());
-                            notification.setText(notificationBuilder.toString());
-                            telegramBot.sendMessage(notification);
-
-                            SendMessage nightMessage = new SendMessage();
-                            nightMessage.setChatId(gamer.getChatId());
-                            nightMessage.setText(BOT_MESSAGE_PREFIX + "Наступила ночь, теперь вы можете использовать способности и предметы.");
-                            telegramBot.sendMessage(nightMessage);
-                        }
-                        break;
-                    }
-                    case DISCUSSION:
-                        for (Gamer gamer: gameSession.getNotificationParticipants()) {
-                            sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
-
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(gamer.getChatId());
-                            sendMessage.setText(BOT_MESSAGE_PREFIX+"Обсудите произошедшее ночью.");
-                            sendMessage.setReplyMarkup(getControlMenuMarkup());
-                            telegramBot.sendMessage(sendMessage);
-                        }
-                        break;
+            case FIRST_DISCUSSION:
+                for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(gamer.getChatId());
+                    sendMessage.setText(BOT_MESSAGE_PREFIX+"Бла бла бла, убийство кровь кишки вся хуйня. Расскажите другими игрокам, чем вы можете быть полезны расследованию.");
+                    telegramBot.sendMessage(sendMessage);
                 }
                 break;
-
-            case GAME_ENDED:
-                gameSessionIdGameSessionMap.remove(gameSession.getId());
-                gameSession.getRoom().setSearchable();
-                // код смены состотяния игроков
+            case FIRST_VOTING:
+            case VOTING:
+                for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(gamer.getChatId());
+                    sendMessage.setText(BOT_MESSAGE_PREFIX+"Проголосуйте за самого подозрительного игрока.");
+                    telegramBot.sendMessage(sendMessage);
+                    sendVoteMessage(gamer, gameSession);
+                }
                 break;
+            case EXTRA_FIRST_VOTING: {
+                StringBuilder notificationBuilder = new StringBuilder();
+                for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
+                    notificationBuilder.append(messageToPlayers);
+                    notificationBuilder.append("\n\n");
+                }
+                for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                    SendMessage notification = new SendMessage();
+                    notification.setChatId(gamer.getChatId());
+                    notification.setText(notificationBuilder.toString());
+                    telegramBot.sendMessage(notification);
+
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(gamer.getChatId());
+                    sendMessage.setText(BOT_MESSAGE_PREFIX + "Идёт дополнительное голосование. Проголосуйте за самого подозрительного игрока.");
+                    telegramBot.sendMessage(sendMessage);
+                    sendVoteMessage(gamer, gameSession);
+                }
+            }
+            break;
+            case NIGHT: {
+                StringBuilder notificationBuilder = new StringBuilder();
+                for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
+                    notificationBuilder.append(messageToPlayers);
+                    notificationBuilder.append("\n\n");
+                }
+
+                for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                    sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
+
+                    SendMessage notification = new SendMessage();
+                    notification.setChatId(gamer.getChatId());
+                    notification.setText(notificationBuilder.toString());
+                    telegramBot.sendMessage(notification);
+
+                    SendMessage nightMessage = new SendMessage();
+                    nightMessage.setChatId(gamer.getChatId());
+                    nightMessage.setText(BOT_MESSAGE_PREFIX + "Наступила ночь, теперь вы можете использовать способности и предметы.");
+                    telegramBot.sendMessage(nightMessage);
+                }
+                break;
+            }
+            case DISCUSSION:
+                for (Gamer gamer: gameSession.getNotificationParticipants()) {
+                    sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
+
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(gamer.getChatId());
+                    sendMessage.setText(BOT_MESSAGE_PREFIX+"Обсудите произошедшее ночью.");
+                    sendMessage.setReplyMarkup(getControlMenuMarkup());
+                    telegramBot.sendMessage(sendMessage);
+                }
+                break;
+            case GAME_ENDED: {
+                StringBuilder notificationBuilder = new StringBuilder();
+
+                for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
+                    notificationBuilder.append(messageToPlayers);
+                    notificationBuilder.append("\n\n");
+                }
+
+                Winners winners = gameSession.getWinners();
+
+                StringBuilder winnersInfoTextBuilder = new StringBuilder();
+                if (!winners.hasWinners()) {
+                    winnersInfoTextBuilder.append("Все игроки погибли. В этой мясорубке не осталось победителей, только проигравшие... \uD83E\uDEE1");
+                } else {
+                    winnersInfoTextBuilder.append("\uD83C\uDFC6: ");
+                    winnersInfoTextBuilder.append(winners.getViningTeam().getName());
+                    winnersInfoTextBuilder.append("\n");
+                    for (Gamer gamer : winners.getGamers()) {
+                        winnersInfoTextBuilder.append("\uD83C\uDF96 ");
+                        winnersInfoTextBuilder.append(gamer.getNickname());
+                        if (!gamer.isAlive()) {
+                            winnersInfoTextBuilder.append(" (посмертно)");
+                        }
+                        winnersInfoTextBuilder.append("\n");
+                    }
+                }
+
+                for (Gamer gamer : gameSession.getGamers()) {
+                    if (!gamer.isInGame()) {
+                        SendMessage messageToLeftPlayer = new SendMessage();
+                        messageToLeftPlayer.setChatId(gamer.getChatId());
+                        messageToLeftPlayer.setText("Результаты покинутой вами игры:");
+                        telegramBot.sendMessage(messageToLeftPlayer);
+                    }
+
+                    sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
+
+                    if (gamer.isInGame()) {
+                        SendMessage notification = new SendMessage();
+                        notification.setChatId(gamer.getChatId());
+                        notification.setText(notificationBuilder.toString());
+                        telegramBot.sendMessage(notification);
+                    }
+
+                    SendMessage winnersInfoMessage = new SendMessage();
+                    winnersInfoMessage.setChatId(gamer.getChatId());
+                    winnersInfoMessage.setText(winnersInfoTextBuilder.toString());
+                    telegramBot.sendMessage(winnersInfoMessage);
+                }
+
+                gameSessionIdGameSessionMap.remove(gameSession.getId());
+
+                returnPlayersToRoom(gameSession.getRoom());
+                break;
+            }
         }
     }
 
@@ -291,6 +346,9 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                 .filter(Gamer::isAlive)
                 .count();
 
+        textBuilder.append("\uD83C\uDD94: ");
+        textBuilder.append(gameSession.getId());
+        textBuilder.append("\n");
         textBuilder.append("\uD83C\uDFAF: ");
         textBuilder.append(gameSession.getStage().getStage());
         textBuilder.append("\n\n");
@@ -419,6 +477,31 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
 
             chatStateService.setState(voter.getChatId(), StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds));
             telegramBot.sendMessage(sendMessage);
+        }
+    }
+
+    private void returnPlayersToRoom(Room room) {
+        room.setSearchable();
+        for (Player player:room.getPlayers()) {
+            SendMessage roomInfoMessage = new SendMessage();
+            roomInfoMessage.setChatId(player.getChatId());
+            roomInfoMessage.setText(room.toString());
+
+            if (player.equals(room.getOwner())) {
+                String buttonsId = IdGenerator.generateForButton();
+                roomInfoMessage.setReplyMarkup(InRoomHandler.getOwnerInlineMarkup(room, buttonsId));
+                chatStateService.setState(player.getChatId(), InRoomHandler.getStateForOwnerReturning(room.getId(),buttonsId));
+            } else {
+                chatStateService.setState(player.getChatId(), InRoomHandler.getStateForReturning(room.getId()));
+            }
+
+            SendMessage playerReturnedToRoomMessage = new SendMessage();
+            playerReturnedToRoomMessage.setChatId(player.getChatId());
+            playerReturnedToRoomMessage.setText("Вы вернулись в комнату.");
+            InRoomHandler.setRoomKeyboard(playerReturnedToRoomMessage);
+
+            telegramBot.sendMessage(roomInfoMessage);
+            telegramBot.sendMessage(playerReturnedToRoomMessage);
         }
     }
 }

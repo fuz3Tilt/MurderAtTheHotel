@@ -1,6 +1,5 @@
 package ru.kradin.murder_at_the_hotel.game;
 
-import ru.kradin.murder_at_the_hotel.enums.GameSessionNotifyType;
 import ru.kradin.murder_at_the_hotel.enums.GameStage;
 import ru.kradin.murder_at_the_hotel.game.items.Item;
 import ru.kradin.murder_at_the_hotel.models.Player;
@@ -26,7 +25,7 @@ public class GameSession {
     private Gamer nextTourGamer;
     private boolean nextTour;
     private List<Gamer> nextTourParticipants;
-
+    private Winners winners;
 
     public GameSession(Room room, GameSessionObserver gameSessionObserver, RoleAssignerService roleAssignerService, ItemAssignerService itemAssignerService) {
         this.room = room;
@@ -49,7 +48,7 @@ public class GameSession {
         roleAssignerService.assignRoles(gamers);
         itemAssignerService.assignItems(gamers);
 
-        gameSessionObserver.update(this, GameSessionNotifyType.GAME_STARTED);
+        gameSessionObserver.update(this);
 
         startGame();
     }
@@ -87,13 +86,13 @@ public class GameSession {
                     case INTRODUCTION:
                         stage = GameStage.FIRST_DISCUSSION;
 
-                        gameSessionObserver.update(GameSession.this,GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
 
                         break;
                     case FIRST_DISCUSSION:
                         stage = GameStage.FIRST_VOTING;
 
-                        gameSessionObserver.update(GameSession.this,GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
 
                         break;
                     case FIRST_VOTING: {
@@ -202,10 +201,10 @@ public class GameSession {
                         messagesToPlayers.add(textBuilder.toString());
                         messagesToPlayers.add(infoBuilder.toString());
                         votesCountMap.clear();
-                        gameSessionObserver.update(GameSession.this, GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
                         break;
                     }
-                    case EXTRA_FIRST_VOTING:
+                    case EXTRA_FIRST_VOTING: {
                         messagesToPlayers.clear();
                         StringBuilder infoBuilder = new StringBuilder();
                         StringBuilder textBuilder = new StringBuilder();
@@ -366,34 +365,90 @@ public class GameSession {
                         nextTourGamer = null;
                         nextTour = false;
                         nextTourParticipants.clear();
+                        votesCountMap.clear();
                         messagesToPlayers.add(textBuilder.toString());
                         messagesToPlayers.add(infoBuilder.toString());
                         stage = GameStage.NIGHT;
-                        gameSessionObserver.update(GameSession.this, GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
                         break;
+                    }
                     case NIGHT:
                         messagesToPlayers.clear();
                         stage = GameStage.DISCUSSION;
 
-                        gameSessionObserver.update(GameSession.this,GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
 
                         break;
                     case DISCUSSION:
                         stage = GameStage.VOTING;
 
-                        gameSessionObserver.update(GameSession.this,GameSessionNotifyType.STAGE_CHANGED);
+                        gameSessionObserver.update(GameSession.this);
 
                         break;
                     case VOTING:
                         messagesToPlayers.clear();
-                        stage = GameStage.NIGHT;
+                        StringBuilder infoBuilder = new StringBuilder();
+                        StringBuilder textBuilder = new StringBuilder();
+                        List<Gamer> gamersWithMaxVotes = new ArrayList<>();
+                        int maxVotes = 0;
 
-                        gameSessionObserver.update(GameSession.this,GameSessionNotifyType.STAGE_CHANGED);
+                        if (!votesCountMap.isEmpty()) {
+                            textBuilder.append("Распределение голосов:\n");
 
+                            int totalPlayers = votesCountMap.keySet().size();
+                            int count = 0;
+                            for (Gamer gamer : votesCountMap.keySet()) {
+                                int currentVotes = votesCountMap.get(gamer);
+
+                                textBuilder.append(gamer.getNickname());
+                                textBuilder.append(" - ");
+                                textBuilder.append(currentVotes);
+                                if (++count < totalPlayers) {
+                                    textBuilder.append("\n");
+                                }
+
+                                if (currentVotes > maxVotes) {
+                                    maxVotes = currentVotes;
+                                    gamersWithMaxVotes.clear();
+                                    gamersWithMaxVotes.add(gamer);
+                                } else if (currentVotes == maxVotes) {
+                                    gamersWithMaxVotes.add(gamer);
+                                }
+                            }
+                        }
+
+                        if (gamersWithMaxVotes.size() == 0) {
+                            infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                        } else if (gamersWithMaxVotes.size() == 1) {
+                            Gamer gamer = gamersWithMaxVotes.get(0);
+                            gamer.killByVoteDecision();
+                            infoBuilder.append("По результатам голосования игрок ").append(gamer.getNickname());
+                            if (gamer.isAlive()) {
+                                infoBuilder.append(" не может быть казнён.");
+                            } else {
+                                infoBuilder.append(" был казнён.");
+                            }
+                        } else if (gamersWithMaxVotes.size() > 1) {
+                            // дописать
+                            infoBuilder.append("По результатам голосования будет проведён дополнительный тур среди игроков, набравших наибольшее количество голосов.");
+                        }
+                        messagesToPlayers.add(textBuilder.toString());
+                        messagesToPlayers.add(infoBuilder.toString());
+                        votesCountMap.clear();
+
+                        if (hasWinners()) {
+                            timer.cancel();
+                            initGameEnd();
+                        } else {
+                            stage = GameStage.NIGHT;
+                        }
+
+                        gameSessionObserver.update(GameSession.this);
                         break;
                 }
             }
         };
+
         int taskRepeatTime = 0;
         if (room.getRoomSettings().getSpeedType().equals(RoomSettings.SpeedType.NORMAL)) {
             taskRepeatTime = 1000*60;
@@ -417,7 +472,7 @@ public class GameSession {
         notificationParticipants.addAll(
                 gamers
                         .stream()
-                        .filter(g -> g.isInGame() && g.isCapable())
+                        .filter(g -> g.isInGame() && (g.isCapable() || !g.isAlive()))
                         .collect(Collectors.toList())
         );
         return notificationParticipants;
@@ -477,4 +532,47 @@ public class GameSession {
         return messagesToPlayers;
     }
 
+    public Winners getWinners() {
+        return winners;
+    }
+
+    public boolean isGameEnded() {
+        return stage == GameStage.GAME_ENDED;
+    }
+
+    private boolean hasWinners() {
+        Map<ViningTeam, Integer> teamAliveGamersMap = new HashMap<>();
+        for (Gamer gamer: gamers) {
+            if (gamer.isAlive()) {
+                ViningTeam viningTeam = gamer.getRole().getViningTeam();
+                int aliveGamers = teamAliveGamersMap.getOrDefault(viningTeam, 0);
+                teamAliveGamersMap.put(viningTeam, aliveGamers + 1);
+            }
+        }
+        return teamAliveGamersMap.size() == 1 || teamAliveGamersMap.size() == 0;
+    }
+
+    private void initGameEnd() {
+        stage = GameStage.GAME_ENDED;
+
+        ViningTeam viningTeam = null;
+        List<Gamer> gameWinners = new ArrayList<>();
+
+        for (Gamer gamer:gamers) {
+            if (gamer.isAlive()) {
+                viningTeam = gamer.getRole().getViningTeam();
+                break;
+            }
+        }
+
+        if (viningTeam!=null) {
+            for (Gamer gamer:gamers) {
+                if (gamer.getRole().getViningTeam() == viningTeam) {
+                    gameWinners.add(gamer);
+                }
+            }
+        }
+
+        winners = new Winners(viningTeam, gameWinners);
+    }
 }

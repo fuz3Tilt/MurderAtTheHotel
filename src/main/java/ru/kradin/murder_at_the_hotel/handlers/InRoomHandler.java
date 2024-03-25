@@ -12,6 +12,7 @@ import ru.kradin.murder_at_the_hotel.enums.SpecialLocalState;
 import ru.kradin.murder_at_the_hotel.exceptions.PlayerDoesNotExistException;
 import ru.kradin.murder_at_the_hotel.exceptions.RoomDoesNotExistException;
 import ru.kradin.murder_at_the_hotel.game.GameSession;
+import ru.kradin.murder_at_the_hotel.game.Gamer;
 import ru.kradin.murder_at_the_hotel.keyboards.MainMenuKeyboard;
 import ru.kradin.murder_at_the_hotel.models.Player;
 import ru.kradin.murder_at_the_hotel.room.Room;
@@ -159,7 +160,15 @@ public class InRoomHandler implements InternalHandler{
         return StateCreator.create(HANDLER_NAME,roomId,PLAYER_JOINED_LOCAL_STATE);
     }
 
-    private InlineKeyboardMarkup getOwnerInlineMarkup(Room room, String buttonsId) {
+    public static String getStateForOwnerReturning(String roomId, String buttonsId) {
+        return StateCreator.create(HANDLER_NAME, roomId, buttonsId);
+    }
+
+    public static String getStateForReturning(String roomId) {
+        return StateCreator.create(HANDLER_NAME, roomId, SpecialLocalState.EMPTY.name());
+    }
+
+    public static InlineKeyboardMarkup getOwnerInlineMarkup(Room room, String buttonsId) {
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
 
@@ -187,7 +196,7 @@ public class InRoomHandler implements InternalHandler{
         return markupInLine;
     }
 
-    private void setRoomKeyboard(SendMessage sendMessage) {
+    public static void setRoomKeyboard(SendMessage sendMessage) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();

@@ -44,11 +44,15 @@ public class HealthBehavior implements Behavior<HealthAffectType> {
         alive = false;
     }
 
+    public void killByVoteDecision() {
+        alive = false;
+    }
+
     public boolean canResurrect() {
         return false;
     }
     public void resurrect() {
         if (canResurrect())
-        alive = true;
+            alive = true;
     }
 }

@@ -78,6 +78,10 @@ public class Gamer {
         }
     }
 
+    public void killByVoteDecision() {
+        healthBehavior.killByVoteDecision();
+    }
+
     public void changeRole(Role newRole) {
         role = newRole;
     }
