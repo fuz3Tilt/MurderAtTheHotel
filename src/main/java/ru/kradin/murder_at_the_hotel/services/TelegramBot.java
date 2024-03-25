@@ -15,16 +15,14 @@ import ru.kradin.murder_at_the_hotel.handlers.InternalHandlerSwitcher;
 import ru.kradin.murder_at_the_hotel.handlers.InternalHandler;
 import ru.kradin.murder_at_the_hotel.handlers.MenuCommand;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
     private final String username;
     private Map<String, MenuCommand> commandNameHandlerMap = new HashMap<>();
     private InternalHandlerSwitcher internalHandlerSwitcher;
+    private ActionRateLimiter actionRateLimiter;
 
     public TelegramBot(TelegramBotConfig telegramBotConfig,
                        List<MenuCommand> menuCommands,
@@ -32,6 +30,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                        InternalHandlerSwitcher internalHandlerSwitcher) {
         super(telegramBotConfig.getToken());
         username = telegramBotConfig.getUsername();
+
+        actionRateLimiter = new ActionRateLimiter();
 
         internalHandlerSwitcher.init(internalHandlers,this);
         this.internalHandlerSwitcher = internalHandlerSwitcher;
@@ -53,6 +53,17 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        long chatId = 0;
+        if (update.hasMessage()) {
+            chatId = update.getMessage().getChatId();
+        } else {
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+        }
+
+        if (!actionRateLimiter.canActIfNotDoYourStuff(chatId)) {
+            return;
+        }
+
         if(update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             MenuCommand menuCommand = commandNameHandlerMap.get(messageText);
@@ -86,6 +97,56 @@ public class TelegramBot extends TelegramLongPollingBot {
             execute(editMessageText);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
+        }
+    }
+    private class ActionRateLimiter {
+        private static final int MAX_ACTIONS_PER_SECOND = 3;
+        private static final long NANOSECONDS_PER_SECOND = 1_000_000_000L;
+        private Map<Long, Long> chatIdLastMessageNanoSecondsTime;
+        private Map<Long, Boolean> chatIdRateLimit;
+
+        ActionRateLimiter() {
+            chatIdLastMessageNanoSecondsTime = new HashMap<>();
+            chatIdRateLimit = new HashMap<>();
+        }
+
+        public boolean canActIfNotDoYourStuff(long chatId) {
+            long currentTime = System.nanoTime();
+            long lastMessageTime = chatIdLastMessageNanoSecondsTime.getOrDefault(chatId, 0L);
+            long timeInterval = NANOSECONDS_PER_SECOND / MAX_ACTIONS_PER_SECOND;
+
+            if (currentTime - lastMessageTime >= timeInterval) {
+                chatIdLastMessageNanoSecondsTime.put(chatId, currentTime);
+                if (chatIdRateLimit.getOrDefault(chatId, false))
+                    return false;
+                else
+                    return true;
+            } else {
+                if (!chatIdRateLimit.getOrDefault(chatId, false)) {
+                    SendMessage limitReachedMessage = new SendMessage();
+                    limitReachedMessage.setChatId(chatId);
+                    limitReachedMessage.setText("Превышено количество действий в секунду. Ваши действия не будут обрабатываться в течении 3-х секунд.");
+                    sendMessage(limitReachedMessage);
+
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            SendMessage limitResetMessage = new SendMessage();
+                            limitResetMessage.setChatId(chatId);
+                            limitResetMessage.setText("Действия снова обрабатываются.");
+                            sendMessage(limitResetMessage);
+                            chatIdRateLimit.put(chatId, false);
+                            timer.cancel();
+                        }
+                    };
+
+                    chatIdRateLimit.put(chatId, true);
+
+                    timer.schedule(timerTask, 1000*3);
+                }
+                return false;
+            }
         }
     }
 }
