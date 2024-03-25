@@ -63,7 +63,7 @@ public class PublicRoomsHandler implements InternalHandler{
                             SendMessage messageWithKeyboard = new SendMessage(String.valueOf(chatId),"Открытые комнаты:");
                             setUpdateBackKeyboard(messageWithKeyboard);
 
-                            SendMessage roomInfoMessageWithNavigationKeyboard = new SendMessage(String.valueOf(chatId),shownRoom.toString());
+                            SendMessage roomInfoMessageWithNavigationKeyboard = new SendMessage(String.valueOf(chatId),shownRoom.getInfo(0));
                             roomInfoMessageWithNavigationKeyboard.setReplyMarkup(getRoomsNavigationMarkupInLine(publicRooms,index,buttonsId));
                             chatStateService.setState(chatId,StateCreator.create(HANDLER_NAME,SpecialLocalState.EMPTY.name(),buttonsId));
                             telegramBot.sendMessage(messageWithKeyboard);
@@ -101,7 +101,7 @@ public class PublicRoomsHandler implements InternalHandler{
                     EditMessageText roomInfo = new EditMessageText();
                     roomInfo.setChatId(chatId);
                     roomInfo.setMessageId(messageId);
-                    roomInfo.setText(shownRoom.toString());
+                    roomInfo.setText(shownRoom.getInfo(0));
                     roomInfo.setReplyMarkup(getRoomsNavigationMarkupInLine(publicRooms,indexToSwitch, buttonsId));
                     chatStateService.setState(chatId,StateCreator.create(HANDLER_NAME,SpecialLocalState.EMPTY.name(),buttonsId));
                     telegramBot.editMessage(roomInfo);

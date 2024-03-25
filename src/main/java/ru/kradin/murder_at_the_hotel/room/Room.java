@@ -77,12 +77,38 @@ public class Room {
         return Objects.hash(getId(), roomSettings);
     }
 
-    @Override
-    public String toString() {
-        return "\uD83C\uDD94: "+"<code>"+id+"</code>"+"\n" +
-                "\uD83D\uDC51: <i><b>"+owner.getNickname()+"</b></i>\n" +
-                "\uD83C\uDFAE: <i><b>"+getPlayersString()+"</b></i>\n\n" +
-                roomSettings.toString();
+    public String getInfo(long currentPlayerChatId) {
+        StringBuilder roomInfoBuilder = new StringBuilder();
+        roomInfoBuilder.append("\uD83C\uDD94: <code>").append(id).append("</code>\n");
+        roomInfoBuilder.append("\uD83D\uDC51: ");
+
+        if (owner.getChatId() == currentPlayerChatId) {
+            roomInfoBuilder.append("<i><b>").append(owner.getNickname()).append("</b></i>\n");
+        } else {
+            roomInfoBuilder.append(owner.getNickname()).append("\n");
+        }
+
+        roomInfoBuilder.append("\uD83C\uDFAE: ");
+
+        for (int i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
+
+            if (player.getChatId() == currentPlayerChatId) {
+                roomInfoBuilder.append("<i><b>").append(player.getNickname()).append("</b></i>");
+            } else {
+                roomInfoBuilder.append(player.getNickname());
+            }
+
+            if (i != players.size() - 1) {
+                roomInfoBuilder.append(", ");
+            }
+        }
+
+        roomInfoBuilder.append("\n\n");
+
+        roomInfoBuilder.append(roomSettings.toString());
+
+        return roomInfoBuilder.toString();
     }
 
     private void setId() {
@@ -91,16 +117,5 @@ public class Room {
             preId = IdGenerator.generate();
         }
         id = preId;
-    }
-
-    private String getPlayersString() {
-        StringBuilder playersToString = new StringBuilder();
-        for (int i = 0; i < players.size(); i++) {
-            playersToString.append(players.get(i).getNickname());
-            if (i != players.size() - 1) {
-                playersToString.append(", ");
-            }
-        }
-        return playersToString.toString();
     }
 }

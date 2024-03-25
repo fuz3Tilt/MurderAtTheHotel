@@ -71,7 +71,7 @@ public class InRoomHandler implements InternalHandler{
             if (update.hasMessage()) {
                 switch (update.getMessage().getText()) {
                     case ABOUT_ROOM_KEY_TEXT:
-                        SendMessage roomInfo = new SendMessage(String.valueOf(chatId), room.toString()+TEXT_FOR_ROOM_INFO);
+                        SendMessage roomInfo = new SendMessage(String.valueOf(chatId), room.getInfo(chatId)+TEXT_FOR_ROOM_INFO);
                         // если игрок, действие которого обрабатывается, владелец комнаты, добавляем клавиатуру
                         if (processingPlayer.equals(room.getOwner())) {
                             String buttonsId = IdGenerator.generateForButton();
@@ -220,7 +220,7 @@ public class InRoomHandler implements InternalHandler{
 
     private void notifyPlayers(Room room, String text) {
         for (Player player:room.getPlayers()) {
-            SendMessage roomInfo = new SendMessage(String.valueOf(player.getChatId()), room.toString()+TEXT_FOR_ROOM_INFO);
+            SendMessage roomInfo = new SendMessage(String.valueOf(player.getChatId()), room.getInfo(player.getChatId())+TEXT_FOR_ROOM_INFO);
             SendMessage message = new SendMessage(String.valueOf(player.getChatId()),text);
             setRoomKeyboard(message);
             if (player.equals(room.getOwner())) {

@@ -394,9 +394,15 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
             } else {
                 textBuilder.append("\uD83D\uDE35 ");
             }
-            textBuilder.append("<i><b>");
-            textBuilder.append(gamer.getNickname());
-            textBuilder.append("</b></i>");
+
+            if (gamer.getChatId() == chatId) {
+                textBuilder.append("<i><b>");
+                textBuilder.append(gamer.getNickname());
+                textBuilder.append("</b></i>");
+            } else {
+                textBuilder.append(gamer.getNickname());
+            }
+
             textBuilder.append(" ");
 
             if (gamer.isAlive()) {
@@ -553,7 +559,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         for (Player player:room.getPlayers()) {
             SendMessage roomInfoMessage = new SendMessage();
             roomInfoMessage.setChatId(player.getChatId());
-            roomInfoMessage.setText(room.toString());
+            roomInfoMessage.setText(room.getInfo(player.getChatId()));
 
             if (player.equals(room.getOwner())) {
                 String buttonsId = IdGenerator.generateForButton();
