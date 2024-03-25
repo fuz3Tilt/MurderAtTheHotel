@@ -168,7 +168,7 @@ public class GameSession {
                                 }
                                 Gamer gamer2 = gamersWithSecondMaxVotes.get(0);
                                 infoBuilder.append("У ").append(gamer2.getNickname()).append(" \"").append(gamer2.getRole().getRoleColor().getColor()).append("\" цвет.");
-                            } else if (gamersWithSecondMaxVotes.size() > 2) {
+                            } else if (gamersWithSecondMaxVotes.size() > 1) {
                                 nextTourGamer = gamersWithMaxVotes.get(0);
                                 nextTour = true;
                                 nextTourParticipants = gamersWithSecondMaxVotes;
@@ -208,11 +208,14 @@ public class GameSession {
                         messagesToPlayers.clear();
                         StringBuilder infoBuilder = new StringBuilder();
                         StringBuilder textBuilder = new StringBuilder();
-                        if (nextTourGamer != null) {
+                        List<Gamer> gamersWithMaxVotes = new ArrayList<>();
+                        List<Gamer> gamersWithSecondMaxVotes = new ArrayList<>();
+
+                        if (!votesCountMap.keySet().isEmpty()) {
                             textBuilder.append("Распределение дополнительных голосов:\n");
 
-                            List<Gamer> gamersWithMaxVotes = new ArrayList<>();
                             int maxVotes = 0;
+                            int secondMaxVotes = 0;
 
                             int totalPlayers = votesCountMap.keySet().size();
                             int count = 0;
@@ -227,14 +230,26 @@ public class GameSession {
                                 }
 
                                 if (currentVotes > maxVotes) {
+                                    secondMaxVotes = maxVotes;
+                                    gamersWithSecondMaxVotes.clear();
+                                    gamersWithSecondMaxVotes.addAll(gamersWithMaxVotes);
+
                                     maxVotes = currentVotes;
                                     gamersWithMaxVotes.clear();
                                     gamersWithMaxVotes.add(gamer);
                                 } else if (currentVotes == maxVotes) {
                                     gamersWithMaxVotes.add(gamer);
+                                } else if (currentVotes > secondMaxVotes) {
+                                    secondMaxVotes = currentVotes;
+                                    gamersWithSecondMaxVotes.clear();
+                                    gamersWithSecondMaxVotes.add(gamer);
+                                } else if (currentVotes == secondMaxVotes) {
+                                    gamersWithSecondMaxVotes.add(gamer);
                                 }
                             }
+                        }
 
+                        if (nextTourGamer != null) {
                             if (gamersWithMaxVotes.size() == 0) {
                                 infoBuilder.append("По результатам голосования будет показана информация об игроке, набравшем максимальное количество голосов в предыдущем туре.\n");
                                 int bagSize = nextTourGamer.getBag().getItems().size();
@@ -268,47 +283,6 @@ public class GameSession {
                                 }
                             }
                         } else {
-                            List<Gamer> gamersWithMaxVotes = new ArrayList<>();
-                            List<Gamer> gamersWithSecondMaxVotes = new ArrayList<>();
-
-                            if (!votesCountMap.keySet().isEmpty()) {
-                                textBuilder.append("Распределение голосов:\n");
-
-                                int maxVotes = 0;
-                                int secondMaxVotes = 0;
-
-                                int totalPlayers = votesCountMap.keySet().size();
-                                int count = 0;
-                                for (Gamer gamer : votesCountMap.keySet()) {
-                                    int currentVotes = votesCountMap.get(gamer);
-
-                                    textBuilder.append(gamer.getNickname());
-                                    textBuilder.append(" - ");
-                                    textBuilder.append(currentVotes);
-                                    if (++count < totalPlayers) {
-                                        textBuilder.append("\n");
-                                    }
-
-                                    if (currentVotes > maxVotes) {
-                                        secondMaxVotes = maxVotes;
-                                        gamersWithSecondMaxVotes.clear();
-                                        gamersWithSecondMaxVotes.addAll(gamersWithMaxVotes);
-
-                                        maxVotes = currentVotes;
-                                        gamersWithMaxVotes.clear();
-                                        gamersWithMaxVotes.add(gamer);
-                                    } else if (currentVotes == maxVotes) {
-                                        gamersWithMaxVotes.add(gamer);
-                                    } else if (currentVotes > secondMaxVotes) {
-                                        secondMaxVotes = currentVotes;
-                                        gamersWithSecondMaxVotes.clear();
-                                        gamersWithSecondMaxVotes.add(gamer);
-                                    } else if (currentVotes == secondMaxVotes) {
-                                        gamersWithSecondMaxVotes.add(gamer);
-                                    }
-                                }
-                            }
-
                             if (gamersWithMaxVotes.size() == 0) {
                                 infoBuilder.append("По результатам дополнительного голосования не будет предпринято никаких действий.");
                             } else if (gamersWithMaxVotes.size() == 1) {
@@ -334,7 +308,7 @@ public class GameSession {
                                     }
                                     Gamer gamer2 = gamersWithSecondMaxVotes.get(0);
                                     infoBuilder.append("У ").append(gamer2.getNickname()).append(" \"").append(gamer2.getRole().getRoleColor().getColor()).append("\" цвет.");
-                                } else if (gamersWithSecondMaxVotes.size() > 2) {
+                                } else if (gamersWithSecondMaxVotes.size() > 1) {
                                     infoBuilder.append("По результатам дополнительного голосования игрокам удалось ограниченно договориться, поэтому будет показана информация только об игроке, набравшем максимальное количество голосов.");
                                     Gamer gamer = gamersWithMaxVotes.get(0);
                                     int bagSize = gamer.getBag().getItems().size();
