@@ -36,6 +36,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
     private static final String ROLE_INFO_TEXT = "Роль \uD83E\uDDB9";
     private static final String BAG_INFO_TEXT = "Багаж \uD83D\uDC5C";
     private static final String TEAM_INFO_TEXT = "Команда \uD83D\uDC68\u200D\uD83D\uDC68\u200D\uD83D\uDC66";
+    private static final String EXIT_TEXT = "Выйти \uD83D\uDEAA";
     private static final String VOTE_LOCAL_STATE = "v";
     private static final String BOT_MESSAGE_PREFIX = "Ведущий:\n";
     private Map<String, GameSession> gameSessionIdGameSessionMap;
@@ -94,6 +95,20 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     break;
                 case TEAM_INFO_TEXT:
                     sendTeammatesInfoMessage(chatId, gameSession);
+                    break;
+                case EXIT_TEXT:
+                    if (!processingGamer.isAlive()) {
+                        exitGame(update, processingGamer, gameSession);
+                        gameSession.getGamers()
+                                .stream()
+                                .filter(g -> g.isInGame())
+                                .forEach(g -> {
+                                    SendMessage sendMessage = new SendMessage();
+                                    sendMessage.setChatId(g.getChatId());
+                                    sendMessage.setText("Игрок "+processingGamer.getNickname()+" покинул игру.");
+                                    telegramBot.sendMessage(sendMessage);
+                                });
+                    }
                     break;
                 default:
                     gameSession.getCommunicationParticipants(processingGamer).forEach(g -> {
@@ -176,7 +191,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
                     sendMessage.setText(BOT_MESSAGE_PREFIX+"Игра началась! Ознакомьтесь с ролью и предметами.");
-                    sendMessage.setReplyMarkup(getControlMenuMarkup());
+                    sendMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(sendMessage);
                 }
                 break;
@@ -185,6 +200,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
                     sendMessage.setText(BOT_MESSAGE_PREFIX+"Бла бла бла, убийство кровь кишки вся хуйня. Расскажите другими игрокам, чем вы можете быть полезны расследованию.");
+                    sendMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(sendMessage);
                 }
                 break;
@@ -194,6 +210,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
                     sendMessage.setText(BOT_MESSAGE_PREFIX+"Проголосуйте за самого подозрительного игрока.");
+                    sendMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(sendMessage);
                     sendVoteMessage(gamer, gameSession);
                 }
@@ -213,6 +230,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
                     sendMessage.setText(BOT_MESSAGE_PREFIX + "Идёт дополнительное голосование. Проголосуйте за самого подозрительного игрока.");
+                    sendMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(sendMessage);
                     sendVoteMessage(gamer, gameSession);
                 }
@@ -236,6 +254,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage nightMessage = new SendMessage();
                     nightMessage.setChatId(gamer.getChatId());
                     nightMessage.setText(BOT_MESSAGE_PREFIX + "Наступила ночь, теперь вы можете использовать способности и предметы.");
+                    nightMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(nightMessage);
                 }
                 break;
@@ -247,7 +266,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
                     sendMessage.setText(BOT_MESSAGE_PREFIX+"Обсудите произошедшее ночью.");
-                    sendMessage.setReplyMarkup(getControlMenuMarkup());
+                    sendMessage.setReplyMarkup(getControlMenuMarkup(gamer));
                     telegramBot.sendMessage(sendMessage);
                 }
                 break;
@@ -318,7 +337,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         return StateCreator.create(HANDLER_NAME,gameSessionId, SpecialLocalState.EMPTY.name());
     }
 
-    private ReplyKeyboardMarkup getControlMenuMarkup() {
+    private ReplyKeyboardMarkup getControlMenuMarkup(Gamer gamer) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -326,6 +345,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         KeyboardRow row1 = new KeyboardRow();
         KeyboardRow row2 = new KeyboardRow();
         KeyboardRow row3 = new KeyboardRow();
+        KeyboardRow row4 = new KeyboardRow();
 
         row1.add(GAME_SESSION_INFO_TEXT);
         row1.add(TEAM_INFO_TEXT);
@@ -336,6 +356,11 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
 
         row3.add(BAG_INFO_TEXT);
         keyboardRows.add(row3);
+
+        row4.add(EXIT_TEXT);
+
+        if (!gamer.isAlive())
+            keyboardRows.add(row4);
 
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setSelective(true);
@@ -353,7 +378,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                 .count();
 
         textBuilder.append("\uD83C\uDD94: ");
-        textBuilder.append(gameSession.getId());
+        textBuilder.append("<code>").append(gameSession.getId()).append("</code>");
         textBuilder.append("\n");
         textBuilder.append("\uD83C\uDFAF: ");
         textBuilder.append(gameSession.getStage().getStage());
@@ -369,17 +394,20 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
             } else {
                 textBuilder.append("\uD83D\uDE35 ");
             }
-
             textBuilder.append("<i><b>");
             textBuilder.append(gamer.getNickname());
             textBuilder.append("</b></i>");
             textBuilder.append(" ");
 
             if (gamer.isAlive()) {
-                textBuilder.append("(жив)");
+                textBuilder.append("(жив) ");
             } else {
-                textBuilder.append("(мёртв)");
+                textBuilder.append("(мёртв) ");
             }
+
+            if (!gamer.isInGame())
+                textBuilder.append(("(покинул игру)"));
+
             textBuilder.append("\n");
         }
         textBuilder.append("\n");
@@ -543,5 +571,18 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
             telegramBot.sendMessage(roomInfoMessage);
             telegramBot.sendMessage(playerReturnedToRoomMessage);
         }
+    }
+
+    private void exitGame(Update update, Gamer gamer, GameSession gameSession) {
+        gamer.setInGame(false);
+        gameSession.getRoom().removePlayer(gameSession.getRoom().getPlayers().stream().filter(p -> p.getChatId() == gamer.getChatId()).findAny().orElse(null));
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(gamer.getChatId());
+        sendMessage.setText("Вы покинули игру.");
+        telegramBot.sendMessage(sendMessage);
+
+        String state = chatStateService.setState(gamer.getChatId(), MainMenuHandler.getStateForGettingMainMenu());
+        internalHandlerSwitcher.switchHandler(update, state);
     }
 }

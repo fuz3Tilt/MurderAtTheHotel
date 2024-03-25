@@ -113,4 +113,8 @@ public class Gamer {
     public boolean isInGame() {
         return inGame;
     }
+
+    public void setInGame(boolean inGame) {
+        this.inGame = inGame;
+    }
 }
