@@ -495,6 +495,18 @@ public class GameSession {
         return communicationParticipants;
     }
 
+    public List<Gamer> getTeammates(Gamer gamer) {
+        List<Gamer> teammates = gamers
+                .stream()
+                .filter(g -> g.getRole().getKnownTeam() == gamer.getRole().getKnownTeam()
+                        &&
+                        g.getRole().getKnownTeam() != KnownTeam.NONE
+                        &&
+                        g.getChatId() != gamer.getChatId())
+                .collect(Collectors.toList());
+        return teammates;
+    }
+
     public boolean isVotePublic() {
         return room.getRoomSettings().getVotingType() == RoomSettings.VotingType.PUBLIC;
     }

@@ -35,6 +35,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
     private static final String GAME_SESSION_INFO_TEXT = "Об игре ℹ\uFE0F";
     private static final String ROLE_INFO_TEXT = "Роль \uD83E\uDDB9";
     private static final String BAG_INFO_TEXT = "Багаж \uD83D\uDC5C";
+    private static final String TEAM_INFO_TEXT = "Команда \uD83D\uDC68\u200D\uD83D\uDC68\u200D\uD83D\uDC66";
     private static final String VOTE_LOCAL_STATE = "v";
     private static final String BOT_MESSAGE_PREFIX = "Ведущий:\n";
     private Map<String, GameSession> gameSessionIdGameSessionMap;
@@ -90,6 +91,9 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     break;
                 case BAG_INFO_TEXT:
                     sendBagInfoMessage(chatId, gameSession);
+                    break;
+                case TEAM_INFO_TEXT:
+                    sendTeammatesInfoMessage(chatId, gameSession);
                     break;
                 default:
                     gameSession.getCommunicationParticipants(processingGamer).forEach(g -> {
@@ -167,6 +171,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     sendGameSessionInfoMessage(gamer.getChatId(), gameSession);
                     sendRoleInfoMessage(gamer.getChatId(), gameSession);
                     sendBagInfoMessage(gamer.getChatId(), gameSession);
+                    sendTeammatesInfoMessage(gamer.getChatId(), gameSession);
 
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(gamer.getChatId());
@@ -323,6 +328,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         KeyboardRow row3 = new KeyboardRow();
 
         row1.add(GAME_SESSION_INFO_TEXT);
+        row1.add(TEAM_INFO_TEXT);
         keyboardRows.add(row1);
 
         row2.add(ROLE_INFO_TEXT);
@@ -478,6 +484,40 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
             chatStateService.setState(voter.getChatId(), StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds));
             telegramBot.sendMessage(sendMessage);
         }
+    }
+
+    private void sendTeammatesInfoMessage(long chatId, GameSession gameSession) {
+        Gamer gamer = gameSession.getGamers()
+                .stream()
+                .filter(g -> g.getChatId() == chatId)
+                .findAny()
+                .orElse(null);
+
+        StringBuilder infoBuilder = new StringBuilder();
+
+        List<Gamer> teammates = gameSession.getTeammates(gamer);
+
+        if (teammates.isEmpty()) {
+            infoBuilder.append("Вам неизвестен ни один сокомандник.");
+        } else {
+            infoBuilder.append("Вы состоите в команде \"");
+            infoBuilder.append(gamer.getRole().getKnownTeam().getName());
+            infoBuilder.append("\". ");
+            infoBuilder.append("Ваши сокомандники:\n");
+            for (Gamer g : teammates) {
+                infoBuilder.append("\uD83D\uDC64 ");
+                infoBuilder.append(g.getNickname());
+                infoBuilder.append(" (");
+                infoBuilder.append(g.getRole().getName());
+                infoBuilder.append(")").append("\n");
+            }
+        }
+
+
+        SendMessage teammatesInfoMessage = new SendMessage();
+        teammatesInfoMessage.setChatId(gamer.getChatId());
+        teammatesInfoMessage.setText(infoBuilder.toString());
+        telegramBot.sendMessage(teammatesInfoMessage);
     }
 
     private void returnPlayersToRoom(Room room) {
