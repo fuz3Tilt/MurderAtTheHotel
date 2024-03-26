@@ -125,7 +125,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (!chatIdRateLimit.getOrDefault(chatId, false)) {
                     SendMessage limitReachedMessage = new SendMessage();
                     limitReachedMessage.setChatId(chatId);
-                    limitReachedMessage.setText("Превышено количество действий в секунду. Ваши действия не будут обрабатываться в течении 3-х секунд.");
+                    limitReachedMessage.setText("Превышена частота действий в секунду. Ваши действия не будут обрабатываться в течении 5 секунд.");
                     sendMessage(limitReachedMessage);
 
                     Timer timer = new Timer();
@@ -143,7 +143,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                     chatIdRateLimit.put(chatId, true);
 
-                    timer.schedule(timerTask, 1000*3);
+                    timer.schedule(timerTask, 1000*5);
                 }
                 return false;
             }
