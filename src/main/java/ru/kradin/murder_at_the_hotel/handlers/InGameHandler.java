@@ -645,7 +645,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         for (Player player:room.getPlayers()) {
             SendMessage roomInfoMessage = new SendMessage();
             roomInfoMessage.setChatId(player.getChatId());
-            roomInfoMessage.setText(room.getInfo(player.getChatId()));
+            roomInfoMessage.setText(room.getInfo(player.getChatId()) + InRoomHandler.getTextForRoomInfo());
 
             if (player.equals(room.getOwner())) {
                 String buttonsId = IdGenerator.generateForButton();

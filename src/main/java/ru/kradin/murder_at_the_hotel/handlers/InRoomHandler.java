@@ -152,6 +152,10 @@ public class InRoomHandler implements InternalHandler{
         return HANDLER_NAME;
     }
 
+    public static String getTextForRoomInfo() {
+        return TEXT_FOR_ROOM_INFO;
+    }
+
     public static String getStateForRoomCreator(String roomId) {
         return StateCreator.create(HANDLER_NAME,roomId,ROOM_CREATED_LOCAL_STATE);
     }
