@@ -38,6 +38,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
     private static final String TEAM_INFO_TEXT = "Команда \uD83D\uDC68\u200D\uD83D\uDC68\u200D\uD83D\uDC66";
     private static final String EXIT_TEXT = "Выйти \uD83D\uDEAA";
     private static final String VOTE_LOCAL_STATE = "v";
+    private static final String EXTRA_VOTE_LOCAL_STATE = "ev";
     private static final String BOT_MESSAGE_PREFIX = "Ведущий:\n";
     private Map<String, GameSession> gameSessionIdGameSessionMap;
     private TelegramBot telegramBot;
@@ -131,7 +132,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         } else if (update.hasCallbackQuery()) {
             String[] callbackData = update.getCallbackQuery().getData().split(";");
             switch (callbackData[3]) {
-                case VOTE_LOCAL_STATE:
+                case VOTE_LOCAL_STATE: {
                     if (!gameSession.isVotingStage())
                         return;
 
@@ -161,7 +162,35 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                         sendMessage.setText(prefix + " проголосовал за " + target.getNickname());
                         telegramBot.sendMessage(sendMessage);
                     }
-                    break;
+                }
+                break;
+                case EXTRA_VOTE_LOCAL_STATE: {
+                    if (!gameSession.isExtraVotingStage())
+                        return;
+
+                    GameSession.ExtraVotingStep1 targetOption = GameSession.ExtraVotingStep1.valueOf(callbackData[4]);
+                    gameSession.vote(processingGamer, targetOption);
+
+                    EditMessageText editMessageText = new EditMessageText();
+                    editMessageText.setChatId(chatId);
+                    editMessageText.setMessageId(MessageIdUtil.getMessageId(update.getCallbackQuery().getMessage()));
+                    editMessageText.setText("Вы успешно проголосовали!");
+                    telegramBot.editMessage(editMessageText);
+
+                    for (Gamer gamer : gameSession.getNotificationParticipants()) {
+                        String prefix = "";
+                        if (gameSession.isVotePublic()) {
+                            prefix = processingGamer.getNickname();
+                        } else {
+                            prefix = "неизвестный игрок";
+                        }
+                        SendMessage sendMessage = new SendMessage();
+                        sendMessage.setChatId(gamer.getChatId());
+                        sendMessage.setText(prefix + " проголосовал за \"" + targetOption.getName() +"\"");
+                        telegramBot.sendMessage(sendMessage);
+                    }
+                }
+                break;
             }
         }
     }
@@ -215,6 +244,7 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
                     sendVoteMessage(gamer, gameSession);
                 }
                 break;
+            case EXTRA_VOTING_STEP_2:
             case EXTRA_FIRST_VOTING: {
                 StringBuilder notificationBuilder = new StringBuilder();
                 for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
@@ -324,6 +354,22 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
 
                 returnPlayersToRoom(gameSession.getRoom());
                 break;
+            }
+            case EXTRA_VOTING_STEP_1: {
+                StringBuilder notificationBuilder = new StringBuilder();
+                for (String messageToPlayers : gameSession.getMessagesToPlayers()) {
+                    notificationBuilder.append(messageToPlayers);
+                    notificationBuilder.append("\n\n");
+                }
+
+                for (Gamer gamer:gameSession.getNotificationParticipants()) {
+                    SendMessage notification = new SendMessage();
+                    notification.setChatId(gamer.getChatId());
+                    notification.setText(notificationBuilder.toString());
+                    telegramBot.sendMessage(notification);
+
+                    sendExtraVoteMessage(gamer, gameSession);
+                }
             }
         }
     }
@@ -488,6 +534,46 @@ public class InGameHandler implements InternalHandler, GameSessionObserver {
         sendMessage.setChatId(chatId);
         sendMessage.setText(textBuilder.toString());
         telegramBot.sendMessage(sendMessage);
+    }
+
+    private void sendExtraVoteMessage(Gamer voter, GameSession gameSession) {
+        if (voter.isAlive() && voter.isCapable()) {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(voter.getChatId());
+            sendMessage.setText("Выберите один из предложенных вариантов:");
+            InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+
+            List<InlineKeyboardButton> rowInLine1 = new ArrayList<>();
+            List<InlineKeyboardButton> rowInLine2 = new ArrayList<>();
+            List<InlineKeyboardButton> rowInLine3 = new ArrayList<>();
+
+            String buttonsIds = IdGenerator.generateForButton();
+
+            var option1 = new InlineKeyboardButton();
+            option1.setText(GameSession.ExtraVotingStep1.KILL_ALL.getName());
+            option1.setCallbackData(StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds,EXTRA_VOTE_LOCAL_STATE,GameSession.ExtraVotingStep1.KILL_ALL.name()));
+            rowInLine1.add(option1);
+            rowsInLine.add(rowInLine1);
+
+            var option2 = new InlineKeyboardButton();
+            option2.setText(GameSession.ExtraVotingStep1.DO_NOTHING.getName());
+            option2.setCallbackData(StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds,EXTRA_VOTE_LOCAL_STATE,GameSession.ExtraVotingStep1.DO_NOTHING.name()));
+            rowInLine2.add(option2);
+            rowsInLine.add(rowInLine2);
+
+            var option3 = new InlineKeyboardButton();
+            option3.setText(GameSession.ExtraVotingStep1.VOTE_AMONG_CONTENDERS.getName());
+            option3.setCallbackData(StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds,EXTRA_VOTE_LOCAL_STATE,GameSession.ExtraVotingStep1.VOTE_AMONG_CONTENDERS.name()));
+            rowInLine3.add(option3);
+            rowsInLine.add(rowInLine3);
+
+            markupInLine.setKeyboard(rowsInLine);
+            sendMessage.setReplyMarkup(markupInLine);
+
+            chatStateService.setState(voter.getChatId(), StateCreator.create(HANDLER_NAME,gameSession.getId(),buttonsIds));
+            telegramBot.sendMessage(sendMessage);
+        }
     }
 
     private void sendVoteMessage(Gamer voter, GameSession gameSession) {

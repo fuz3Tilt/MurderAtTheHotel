@@ -22,6 +22,7 @@ public class GameSession {
     private ItemAssignerService itemAssignerService;
     private Queue<String> messagesToPlayers;
     private Map<Gamer, Integer> votesCountMap;
+    private Map<ExtraVotingStep1, Integer> extraVotesCountMap;
     private Gamer nextTourGamer;
     private boolean nextTour;
     private List<Gamer> nextTourParticipants;
@@ -37,6 +38,7 @@ public class GameSession {
 
         messagesToPlayers = new LinkedList<>();
         votesCountMap = new HashMap<>();
+        extraVotesCountMap = new HashMap<>();
         nextTourParticipants = new ArrayList<>();
         nextTour = false;
 
@@ -359,7 +361,7 @@ public class GameSession {
                         gameSessionObserver.update(GameSession.this);
 
                         break;
-                    case VOTING:
+                    case VOTING: {
                         messagesToPlayers.clear();
                         StringBuilder infoBuilder = new StringBuilder();
                         StringBuilder textBuilder = new StringBuilder();
@@ -403,22 +405,172 @@ public class GameSession {
                                 infoBuilder.append(" был казнён.");
                             }
                         } else if (gamersWithMaxVotes.size() > 1) {
-                            // дописать
-                            infoBuilder.append("По результатам голосования будет проведён дополнительный тур среди игроков, набравших наибольшее количество голосов.");
+                            nextTourParticipants = gamersWithMaxVotes;
+                            stage = GameStage.EXTRA_VOTING_STEP_1;
+                            infoBuilder.append("По результатам голосования будет проведён дополнительный тур, для выбора дальнейших действий.");
                         }
                         messagesToPlayers.add(textBuilder.toString());
                         messagesToPlayers.add(infoBuilder.toString());
                         votesCountMap.clear();
 
+                        if (stage == GameStage.EXTRA_VOTING_STEP_1) {
+                            gameSessionObserver.update(GameSession.this);
+                            return;
+                        }
+
                         if (hasWinners()) {
-                            timer.cancel();
-                            initGameEnd();
+                            initGameEnd(timer);
                         } else {
                             stage = GameStage.NIGHT;
                         }
 
                         gameSessionObserver.update(GameSession.this);
-                        break;
+                    }
+                    break;
+                    case EXTRA_VOTING_STEP_1: {
+                        messagesToPlayers.clear();
+                        StringBuilder infoBuilder = new StringBuilder();
+                        StringBuilder textBuilder = new StringBuilder();
+                        List<ExtraVotingStep1> optionsWithMostVotes = new ArrayList<>();
+                        if (!extraVotesCountMap.isEmpty()) {
+                            textBuilder.append("Распределение голосов:\n");
+
+                            int totalOptions = extraVotesCountMap.size();
+                            int count = 0;
+                            int maxVotes = 0;
+                            for (ExtraVotingStep1 option:extraVotesCountMap.keySet()) {
+                                int currentVotes = extraVotesCountMap.get(option);
+
+                                textBuilder.append(option.getName());
+                                textBuilder.append(" - ");
+                                textBuilder.append(currentVotes);
+                                if (++count < totalOptions) {
+                                    textBuilder.append("\n");
+                                }
+
+                                if (currentVotes > maxVotes) {
+                                    maxVotes = currentVotes;
+                                    optionsWithMostVotes.clear();
+                                    optionsWithMostVotes.add(option);
+                                } else if (currentVotes == maxVotes) {
+                                    optionsWithMostVotes.add(option);
+                                }
+                            }
+                        }
+
+                        if (optionsWithMostVotes.size() == 0) {
+                            infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                        } else if (optionsWithMostVotes.size() == 1) {
+                            switch (optionsWithMostVotes.get(0)) {
+                                case KILL_ALL:
+                                    nextTourParticipants.forEach(g -> g.killByVoteDecision());
+                                    infoBuilder.append("По результатам голосования игроки ");
+                                    for (int i = 0; i < nextTourParticipants.size(); i++) {
+                                        Gamer gamer = nextTourParticipants.get(i);
+
+                                        infoBuilder.append(gamer.getNickname());
+
+                                        if (i < nextTourParticipants.size() - 2) {
+                                            infoBuilder.append(", ");
+                                        }
+
+                                        if (i == nextTourParticipants.size() - 2) {
+                                            infoBuilder.append(" и ");
+                                        }
+                                    }
+                                    infoBuilder.append(" были казнены.");
+                                    nextTourParticipants.clear();
+                                    break;
+                                case DO_NOTHING:
+                                    infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                                    nextTourParticipants.clear();
+                                    break;
+                                case VOTE_AMONG_CONTENDERS:
+                                    infoBuilder.append("По результатам голосования будет проведён дополнительный тур среди претендентов.");
+                                    nextTour = true;
+                                    break;
+                            }
+                        } else {
+                            infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                        }
+
+                        if (hasWinners()) {
+                            initGameEnd(timer);
+                        } else if (nextTour) {
+                            stage = GameStage.EXTRA_VOTING_STEP_2;
+                        } else {
+                            stage = GameStage.NIGHT;
+                        }
+
+                        messagesToPlayers.add(textBuilder.toString());
+                        messagesToPlayers.add(infoBuilder.toString());
+                        extraVotesCountMap.clear();
+
+                        gameSessionObserver.update(GameSession.this);
+                    }
+                    break;
+                    case EXTRA_VOTING_STEP_2: {
+                        messagesToPlayers.clear();
+                        StringBuilder infoBuilder = new StringBuilder();
+                        StringBuilder textBuilder = new StringBuilder();
+                        List<Gamer> gamersWithMostVotes = new ArrayList<>();
+                        if (!votesCountMap.isEmpty()) {
+                            textBuilder.append("Распределение голосов:\n");
+
+                            int totalPlayers = votesCountMap.size();
+                            int count = 0;
+                            int maxVotes = 0;
+                            for (Gamer gamer:votesCountMap.keySet()) {
+                                int currentVotes = votesCountMap.get(gamer);
+
+                                textBuilder.append(gamer.getNickname());
+                                textBuilder.append(" - ");
+                                textBuilder.append(currentVotes);
+                                if (++count < totalPlayers) {
+                                    textBuilder.append("\n");
+                                }
+
+                                if (currentVotes > maxVotes) {
+                                    maxVotes = currentVotes;
+                                    gamersWithMostVotes.clear();
+                                    gamersWithMostVotes.add(gamer);
+                                } else if (currentVotes == maxVotes) {
+                                    gamersWithMostVotes.add(gamer);
+                                }
+                            }
+                        }
+
+                        if (gamersWithMostVotes.size() == 0) {
+                            infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                        } else if (gamersWithMostVotes.size() == 1) {
+                            Gamer gamer = gamersWithMostVotes.get(0);
+                            gamer.killByVoteDecision();
+                            infoBuilder.append("По результатам голосования игрок ").append(gamer.getNickname());
+                            if (gamer.isAlive()) {
+                                infoBuilder.append(" не может быть казнён.");
+                            } else {
+                                infoBuilder.append(" был казнён.");
+                            }
+                        } else {
+                            infoBuilder.append("По результатам голосования не будет предпринято никаких действий.");
+                        }
+
+                        if (hasWinners()) {
+                            initGameEnd(timer);
+                        } else {
+                            stage = GameStage.NIGHT;
+                        }
+
+                        nextTour = false;
+                        nextTourParticipants.clear();
+                        votesCountMap.clear();
+
+                        messagesToPlayers.add(textBuilder.toString());
+                        messagesToPlayers.add(infoBuilder.toString());
+
+                        gameSessionObserver.update(GameSession.this);
+                    }
+                    break;
                 }
             }
         };
@@ -433,7 +585,23 @@ public class GameSession {
     }
 
     public boolean isVotingStage() {
-        return stage == GameStage.VOTING || stage == GameStage.FIRST_VOTING || stage == GameStage.EXTRA_FIRST_VOTING;
+        return stage == GameStage.VOTING
+                ||
+                stage == GameStage.FIRST_VOTING
+                ||
+                stage == GameStage.EXTRA_FIRST_VOTING
+                ||
+                stage == GameStage.EXTRA_VOTING_STEP_2;
+    }
+
+    public boolean isExtraVotingStage() {
+        return stage == GameStage.EXTRA_VOTING_STEP_1;
+    }
+
+    public void vote(Gamer voter, ExtraVotingStep1 target) {
+        //аналогично методу ниже
+        int currentVotes = extraVotesCountMap.getOrDefault(target, 0);
+        extraVotesCountMap.put(target, currentVotes + 1);
     }
 
     public void vote(Gamer voter, Gamer target) {
@@ -522,10 +690,6 @@ public class GameSession {
         return winners;
     }
 
-    public boolean isGameEnded() {
-        return stage == GameStage.GAME_ENDED;
-    }
-
     private boolean hasWinners() {
         Map<ViningTeam, Integer> teamAliveGamersMap = new HashMap<>();
         for (Gamer gamer: gamers) {
@@ -538,7 +702,8 @@ public class GameSession {
         return teamAliveGamersMap.size() == 1 || teamAliveGamersMap.size() == 0;
     }
 
-    private void initGameEnd() {
+    private void initGameEnd(Timer timer) {
+        timer.cancel();
         stage = GameStage.GAME_ENDED;
 
         ViningTeam viningTeam = null;
@@ -560,5 +725,18 @@ public class GameSession {
         }
 
         winners = new Winners(viningTeam, gameWinners);
+    }
+
+    public enum ExtraVotingStep1 {
+        KILL_ALL("Казнить всех"),DO_NOTHING("Ничего не делать"),VOTE_AMONG_CONTENDERS("Переголосовать среди претендентов");
+        private String name;
+
+        ExtraVotingStep1(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }
